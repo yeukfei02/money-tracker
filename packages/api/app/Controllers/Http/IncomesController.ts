@@ -32,9 +32,34 @@ export default class IncomesController {
   public async index({ response }: HttpContextContract) {
     const incomes = await Income.all();
 
+    const formattedIncomesList: unknown[] = [];
+    if (incomes) {
+      for (let index = 0; index < incomes.length; index++) {
+        const item = incomes[index];
+
+        const obj: any = {
+          id: item.id,
+          name: item.name,
+          description: item.description,
+          type: item.type,
+          amount: item.amount,
+          created_at: item.created_at,
+          updated_at: item.updated_at,
+        };
+
+        const incomeUserList = await item.related('user').query();
+        if (incomeUserList) {
+          const user = incomeUserList[0];
+          obj.user = user;
+        }
+
+        formattedIncomesList.push(obj);
+      }
+    }
+
     response.status(200).json({
       message: 'getIncomes',
-      incomes: incomes,
+      incomes: formattedIncomesList,
     });
   }
 
@@ -44,11 +69,28 @@ export default class IncomesController {
     if (id) {
       const idNum = parseInt(id, 10);
 
+      let incomeObj: any = {};
+
       const income = await Income.find(idNum);
+      if (income) {
+        incomeObj.id = income.id;
+        incomeObj.name = income.name;
+        incomeObj.description = income.description;
+        incomeObj.type = income.type;
+        incomeObj.amount = income.amount;
+        incomeObj.created_at = income.created_at;
+        incomeObj.updated_at = income.updated_at;
+
+        const incomeUserList = await income.related('user').query();
+        if (incomeUserList) {
+          const user = incomeUserList[0];
+          incomeObj.user = user;
+        }
+      }
 
       response.status(200).json({
         message: 'getIncomeById',
-        income: income,
+        income: incomeObj,
       });
     } else {
       response.status(400).json({

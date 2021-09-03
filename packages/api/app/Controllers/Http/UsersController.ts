@@ -75,9 +75,31 @@ export default class UsersController {
   public async index({ response }: HttpContextContract) {
     const users = await User.all();
 
+    const formattedUsersList: unknown[] = [];
+    if (users) {
+      for (let index = 0; index < users.length; index++) {
+        const item = users[index];
+
+        const obj: any = {
+          id: item.id,
+          email: item.email,
+          password: item.password,
+          created_at: item.created_at,
+          updated_at: item.updated_at,
+        };
+
+        const incomes = await item.related('incomes').query();
+        const expenses = await item.related('expenses').query();
+        obj.incomes = incomes;
+        obj.expenses = expenses;
+
+        formattedUsersList.push(obj);
+      }
+    }
+
     response.status(200).json({
       message: 'getUsers',
-      users: users,
+      users: formattedUsersList,
     });
   }
 
@@ -87,11 +109,25 @@ export default class UsersController {
     if (id) {
       const idNum = parseInt(id, 10);
 
+      let userObj: any = {};
+
       const user = await User.find(idNum);
+      if (user) {
+        userObj.id = user.id;
+        userObj.email = user.email;
+        userObj.password = user.password;
+        userObj.created_at = user.created_at;
+        userObj.updated_at = user.updated_at;
+
+        const incomes = await user.related('incomes').query();
+        const expenses = await user.related('expenses').query();
+        userObj.incomes = incomes;
+        userObj.expenses = expenses;
+      }
 
       response.status(200).json({
         message: 'getUserById',
-        user: user,
+        user: userObj,
       });
     } else {
       response.status(400).json({

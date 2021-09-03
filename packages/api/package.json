@@ -32,6 +32,7 @@
     "dev": "node ace serve --watch",
     "build": "node ace build --production",
     "production": "yarn run build && cp .env ./build && cd build && node server.js",
+    "start": "cd build && node server.js",
     "lint": "eslint . --ext=.ts",
     "format": "prettier --write .",
     "heroku-postbuild": "yarn run build"

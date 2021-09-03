@@ -3,7 +3,7 @@ import { Box } from "grommet";
 import CustomAppBar from "../customAppBar/CustomAppBar";
 import MainContent from "../mainContent/MainContent";
 
-function MainPage() {
+function Income(props: any) {
   const [isUserLoggedIn, setIsUserLoggedIn] = useState(false);
 
   useEffect(() => {
@@ -19,9 +19,9 @@ function MainPage() {
   return (
     <Box fill>
       <CustomAppBar isUserLoggedIn={isUserLoggedIn} />
-      <MainContent isUserLoggedIn={isUserLoggedIn} />
+      <MainContent isUserLoggedIn={isUserLoggedIn} currentPage="income" />
     </Box>
   );
 }
 
-export default MainPage;
+export default Income;

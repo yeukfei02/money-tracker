@@ -2,6 +2,12 @@
 
 a monorepo for money tracking
 
+documentation: <https://documenter.getpostman.com/view/3827865/U16ev89t>
+
+api url: <https://money-tracker-monorepo-api.herokuapp.com>
+
+web: <https://money-tracker-neon.vercel.app>
+
 ## Requirement
 
 - install yarn

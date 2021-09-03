@@ -25,7 +25,7 @@ Route.get('/', 'MainsController.index');
 Route.group(() => {
   Route.post('/users/signup', 'UsersController.signup');
   Route.post('/users/login', 'UsersController.login');
-  Route.get('/users', 'UsersController.index');
-  Route.get('/users/:id', 'UsersController.show');
-  Route.put('/users/change-password/:id', 'UsersController.changePassword');
+  Route.get('/users', 'UsersController.index').middleware('authorize');
+  Route.get('/users/:id', 'UsersController.show').middleware('authorize');
+  Route.put('/users/change-password/:id', 'UsersController.changePassword').middleware('authorize');
 }).prefix('/api');

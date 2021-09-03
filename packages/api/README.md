@@ -41,6 +41,9 @@ $ node ace make:seeder <seederName>
 // run all db seed
 $ node ace db:seed
 
+// create middleware
+$ node ace make:middleware <middlewareName>
+
 // list routes
 $ node ace list:routes
 

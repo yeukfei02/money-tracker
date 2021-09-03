@@ -11,8 +11,23 @@ a monorepo for money tracking
 
 ```zsh
 // install node dependencies
-$ yarn
+$ yarn run install:dep
+
+// run all (api + web) in local
+$ yarn run dev
+
+// run all (api + web) production in local
+$ yarn run production
 
 // run api in local
-$ yarn run dev
+$ yarn run dev:api
+
+// run web in local
+$ yarn run dev:web
+
+// run api production in local
+$ yarn run production:api
+
+// run web production in local
+$ yarn run production:web
 ```

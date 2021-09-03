@@ -2,6 +2,8 @@
 
 money tracker web
 
+web: <https://money-tracker-neon.vercel.app>
+
 ## Requirement
 
 - install yarn

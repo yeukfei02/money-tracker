@@ -7,10 +7,10 @@ import { v4 as uuidv4 } from 'uuid';
 
 export default class UsersController {
   public async signup({ request, response }: HttpContextContract) {
-    const requestBody = request.all();
-    if (requestBody) {
-      const email = requestBody.email;
-      const password = bcrypt.hashSync(requestBody.password);
+    const body = request.body();
+    if (body) {
+      const email = body.email;
+      const password = bcrypt.hashSync(body.password);
 
       const userFromDB = await User.findBy('email', email);
       console.log('userFromDB = ', userFromDB);
@@ -37,10 +37,10 @@ export default class UsersController {
   }
 
   public async login({ request, response }: HttpContextContract) {
-    const requestBody = request.all();
-    if (requestBody) {
-      const email = requestBody.email;
-      const password = requestBody.password;
+    const body = request.body();
+    if (body) {
+      const email = body.email;
+      const password = body.password;
 
       const user = await User.findBy('email', email);
       if (user) {
@@ -104,12 +104,12 @@ export default class UsersController {
     const id = params.id;
 
     if (id) {
-      const requestBody = request.all();
-      if (requestBody) {
+      const body = request.body();
+      if (body) {
         const idNum = parseInt(id, 10);
 
-        const oldPassword = requestBody.old_password;
-        const newPassword = requestBody.new_password;
+        const oldPassword = body.old_password;
+        const newPassword = body.new_password;
 
         const user = await User.findOrFail(idNum);
         const isPasswordValid = bcrypt.compareSync(oldPassword, user.password);

@@ -1,7 +1,9 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Box, Heading, Menu, Button } from "grommet";
 import { User } from "grommet-icons";
 import { useHistory } from "react-router";
+import axios from "axios";
+import { getRootUrl } from "../../helpers/helpers";
 
 const AppBar = (props: any) => (
   <Box
@@ -21,6 +23,39 @@ function CustomAppBar(props: any) {
   const history = useHistory();
 
   const isUserLoggedIn = props.isUserLoggedIn;
+
+  const [userEmail, setUserEmail] = useState("");
+
+  useEffect(() => {
+    getUserByIdRequest();
+  }, []);
+
+  const getUserByIdRequest = async () => {
+    try {
+      const rootUrl = getRootUrl();
+      const token = localStorage.getItem("token");
+      const userId = localStorage.getItem("userId");
+
+      if (userId) {
+        const response = await axios.get(`${rootUrl}/users/${userId}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        if (response) {
+          const responseData = response.data;
+          console.log("responseData = ", responseData);
+
+          if (response.status === 200) {
+            const userEmail = responseData.user.email;
+            setUserEmail(userEmail);
+          }
+        }
+      }
+    } catch (e) {
+      console.log("error = ", e);
+    }
+  };
 
   const handleHomeClick = () => {
     history.push("/");
@@ -55,7 +90,7 @@ function CustomAppBar(props: any) {
     if (isUserLoggedIn) {
       rightSideAppBar = (
         <Menu
-          label="user email"
+          label={userEmail}
           icon={<User />}
           items={[
             {

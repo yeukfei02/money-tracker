@@ -53,6 +53,7 @@ export default class UsersController {
           response.status(200).json({
             message: 'login',
             token: token,
+            userId: user.id,
           });
         } else {
           response.status(400).json({

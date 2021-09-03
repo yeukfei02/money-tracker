@@ -1,0 +1,19 @@
+{
+  "name": "root",
+  "private": true,
+  "devDependencies": {
+    "git-cz": "^4.7.6",
+    "lerna": "^4.0.0"
+  },
+  "scripts": {
+    "dev": "lerna run dev",
+    "start": "lerna run start",
+    "install:dep": "yarn run exec && yarn run link",
+    "exec": "lerna exec yarn install",
+    "link": "lerna link",
+    "diff": "lerna diff",
+    "list": "lerna list",
+    "commit": "git-cz",
+    "release": "lerna version --conventional-commits"
+  }
+}

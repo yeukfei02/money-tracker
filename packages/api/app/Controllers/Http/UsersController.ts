@@ -7,10 +7,10 @@ import { v4 as uuidv4 } from 'uuid';
 
 export default class UsersController {
   public async signup({ request, response }: HttpContextContract) {
-    const requestBody = request.all();
-    if (requestBody) {
-      const email = requestBody.email;
-      const password = bcrypt.hashSync(requestBody.password);
+    const body = request.body();
+    if (body) {
+      const email = body.email;
+      const password = bcrypt.hashSync(body.password);
 
       const userFromDB = await User.findBy('email', email);
       console.log('userFromDB = ', userFromDB);
@@ -37,10 +37,10 @@ export default class UsersController {
   }
 
   public async login({ request, response }: HttpContextContract) {
-    const requestBody = request.all();
-    if (requestBody) {
-      const email = requestBody.email;
-      const password = requestBody.password;
+    const body = request.body();
+    if (body) {
+      const email = body.email;
+      const password = body.password;
 
       const user = await User.findBy('email', email);
       if (user) {
@@ -53,6 +53,7 @@ export default class UsersController {
           response.status(200).json({
             message: 'login',
             token: token,
+            userId: user.id,
           });
         } else {
           response.status(400).json({
@@ -74,9 +75,31 @@ export default class UsersController {
   public async index({ response }: HttpContextContract) {
     const users = await User.all();
 
+    const formattedUsersList: unknown[] = [];
+    if (users) {
+      for (let index = 0; index < users.length; index++) {
+        const item = users[index];
+
+        const obj: any = {
+          id: item.id,
+          email: item.email,
+          password: item.password,
+          created_at: item.created_at,
+          updated_at: item.updated_at,
+        };
+
+        const incomes = await item.related('incomes').query();
+        const expenses = await item.related('expenses').query();
+        obj.incomes = incomes;
+        obj.expenses = expenses;
+
+        formattedUsersList.push(obj);
+      }
+    }
+
     response.status(200).json({
       message: 'getUsers',
-      users: users,
+      users: formattedUsersList,
     });
   }
 
@@ -86,11 +109,25 @@ export default class UsersController {
     if (id) {
       const idNum = parseInt(id, 10);
 
+      let userObj: any = {};
+
       const user = await User.find(idNum);
+      if (user) {
+        userObj.id = user.id;
+        userObj.email = user.email;
+        userObj.password = user.password;
+        userObj.created_at = user.created_at;
+        userObj.updated_at = user.updated_at;
+
+        const incomes = await user.related('incomes').query();
+        const expenses = await user.related('expenses').query();
+        userObj.incomes = incomes;
+        userObj.expenses = expenses;
+      }
 
       response.status(200).json({
         message: 'getUserById',
-        user: user,
+        user: userObj,
       });
     } else {
       response.status(400).json({
@@ -103,12 +140,12 @@ export default class UsersController {
     const id = params.id;
 
     if (id) {
-      const requestBody = request.all();
-      if (requestBody) {
+      const body = request.body();
+      if (body) {
         const idNum = parseInt(id, 10);
 
-        const oldPassword = requestBody.old_password;
-        const newPassword = requestBody.new_password;
+        const oldPassword = body.old_password;
+        const newPassword = body.new_password;
 
         const user = await User.findOrFail(idNum);
         const isPasswordValid = bcrypt.compareSync(oldPassword, user.password);

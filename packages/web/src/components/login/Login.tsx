@@ -45,6 +45,7 @@ function Login() {
           setShowSuccessAlert(true);
           localStorage.setItem("isUserLoggedIn", "true");
           localStorage.setItem("token", responseData.token);
+          localStorage.setItem("userId", responseData.userId.toString());
 
           setTimeout(() => {
             history.push("/");

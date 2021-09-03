@@ -1,5 +1,7 @@
 import { DateTime } from 'luxon';
-import { BaseModel, column } from '@ioc:Adonis/Lucid/Orm';
+import { BaseModel, column, hasMany, HasMany } from '@ioc:Adonis/Lucid/Orm';
+import Income from 'App/Models/Income';
+import Expense from 'App/Models/Expense';
 
 export default class User extends BaseModel {
   @column({ isPrimary: true })
@@ -10,6 +12,12 @@ export default class User extends BaseModel {
 
   @column()
   public password: string;
+
+  @hasMany(() => Income)
+  public incomes: HasMany<typeof Income>;
+
+  @hasMany(() => Expense)
+  public expenses: HasMany<typeof Expense>;
 
   @column.dateTime({ autoCreate: true })
   public created_at: DateTime;

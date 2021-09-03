@@ -25,7 +25,19 @@ Route.get('/', 'MainsController.index');
 Route.group(() => {
   Route.post('/users/signup', 'UsersController.signup');
   Route.post('/users/login', 'UsersController.login');
-  Route.get('/users', 'UsersController.index');
-  Route.get('/users/:id', 'UsersController.show');
-  Route.put('/users/change-password/:id', 'UsersController.changePassword');
+  Route.get('/users', 'UsersController.index').middleware('authorize');
+  Route.get('/users/:id', 'UsersController.show').middleware('authorize');
+  Route.put('/users/change-password/:id', 'UsersController.changePassword').middleware('authorize');
+
+  Route.post('/incomes/create-income', 'IncomesController.createIncome').middleware('authorize');
+  Route.get('/incomes', 'IncomesController.index').middleware('authorize');
+  Route.get('/incomes/:id', 'IncomesController.show').middleware('authorize');
+  Route.delete('/incomes/:id', 'IncomesController.delete').middleware('authorize');
+
+  Route.post('/expenses/create-expense', 'ExpensesController.createExpense').middleware(
+    'authorize'
+  );
+  Route.get('/expenses', 'ExpensesController.index').middleware('authorize');
+  Route.get('/expenses/:id', 'ExpensesController.show').middleware('authorize');
+  Route.delete('/expenses/:id', 'ExpensesController.delete').middleware('authorize');
 }).prefix('/api');

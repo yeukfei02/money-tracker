@@ -1,0 +1,24 @@
+{
+  "name": "root",
+  "private": true,
+  "devDependencies": {
+    "git-cz": "^4.7.6",
+    "lerna": "^4.0.0"
+  },
+  "scripts": {
+    "dev": "lerna run dev",
+    "production": "lerna run production",
+    "dev:api": "cd ./packages/api && yarn run dev",
+    "dev:web": "cd ./packages/web && yarn run dev",
+    "production:api": "cd ./packages/api && yarn run production",
+    "production:web": "cd ./packages/web && yarn run production",
+    "install:dep": "yarn run exec && yarn run link",
+    "exec": "lerna exec yarn install",
+    "link": "lerna link",
+    "clean": "lerna clean",
+    "diff": "lerna diff",
+    "list": "lerna list",
+    "commit": "git-cz",
+    "release": "lerna version --conventional-commits"
+  }
+}

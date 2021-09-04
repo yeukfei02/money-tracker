@@ -16,6 +16,9 @@ export default class Income extends BaseModel {
   public type: string;
 
   @column()
+  public currency: string;
+
+  @column()
   public amount: number;
 
   @column()

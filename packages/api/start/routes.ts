@@ -40,4 +40,6 @@ Route.group(() => {
   Route.get('/expenses', 'ExpensesController.index').middleware('authorize');
   Route.get('/expenses/:id', 'ExpensesController.show').middleware('authorize');
   Route.delete('/expenses/:id', 'ExpensesController.delete').middleware('authorize');
+
+  Route.get('/currencies', 'CurrenciesController.index').middleware('authorize');
 }).prefix('/api');

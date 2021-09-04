@@ -1,6 +1,7 @@
 import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext';
 import Expense from 'App/Models/Expense';
 import { schema } from '@ioc:Adonis/Core/Validator';
+import Database from '@ioc:Adonis/Lucid/Database';
 export default class ExpensesController {
   public async createExpense({ request, response }: HttpContextContract) {
     const newExpenseSchema = schema.create({
@@ -41,13 +42,25 @@ export default class ExpensesController {
     }
   }
 
-  public async index({ response }: HttpContextContract) {
-    const expenses = await Expense.all();
+  public async index({ request, response }: HttpContextContract) {
+    const pageNumber = request.qs().pageNumber ? request.qs().pageNumber : 1;
+    const pageSize = request.qs().pageSize ? request.qs().pageSize : 10;
+    const userId = request.qs().userId ? request.qs().userId : 0;
+    console.log('pageNumber = ', pageNumber);
+    console.log('pageSize = ', pageSize);
+    console.log('userId = ', userId);
+
+    const expenses = await Database.from('expenses')
+      .where('user_id', userId)
+      .paginate(pageNumber, pageSize);
+    const expensesJSON = expenses.toJSON();
+    console.log('expensesJSON = ', expensesJSON);
 
     const formattedExpensesList: unknown[] = [];
-    if (expenses) {
-      for (let index = 0; index < expenses.length; index++) {
-        const item = expenses[index];
+    if (expensesJSON && expensesJSON.data) {
+      const expensesDataList = expensesJSON.data;
+      for (let index = 0; index < expensesDataList.length; index++) {
+        const item = expensesDataList[index];
 
         const obj: any = {
           id: item.id,
@@ -60,19 +73,26 @@ export default class ExpensesController {
           updated_at: item.updated_at,
         };
 
-        const incomeUserList = await item.related('user').query();
-        if (incomeUserList) {
-          const user = incomeUserList[0];
-          obj.user = user;
+        const expense = await Expense.find(item.id);
+        if (expense) {
+          const expenseUserList = await expense.related('user').query();
+          if (expenseUserList) {
+            const user = expenseUserList[0];
+            obj.user = user;
+          }
         }
 
         formattedExpensesList.push(obj);
       }
     }
 
+    const allCount = (await Expense.query().where('user_id', userId)).length;
+
     response.status(200).json({
       message: 'getExpenses',
       expenses: formattedExpensesList,
+      count: formattedExpensesList.length,
+      allCount: allCount,
     });
   }
 

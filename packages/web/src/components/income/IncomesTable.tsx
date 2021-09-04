@@ -23,200 +23,6 @@ const IndeterminateCheckbox = React.forwardRef(
   }
 );
 
-function Table({ columns, data }: any) {
-  // Use the state and functions returned from useTable to build your UI
-  const {
-    getTableProps,
-    getTableBodyProps,
-    headerGroups,
-    prepareRow,
-    page, // Instead of using 'rows', we'll use page,
-    // which has only the rows for the active page
-
-    // The rest of these things are super handy, too ;)
-    canPreviousPage,
-    canNextPage,
-    pageOptions,
-    pageCount,
-    gotoPage,
-    nextPage,
-    previousPage,
-    setPageSize,
-    selectedFlatRows,
-    state: { pageIndex, pageSize, selectedRowIds },
-  } = useTable(
-    {
-      columns,
-      data,
-    },
-    useSortBy,
-    usePagination,
-    useRowSelect,
-    (hooks) => {
-      hooks.visibleColumns.push((columns) => [
-        // Let's make a column for selection
-        {
-          id: "selection",
-          // The header can use the table's getToggleAllRowsSelectedProps method
-          // to render a checkbox
-          Header: ({ getToggleAllPageRowsSelectedProps }) => (
-            <div>
-              <IndeterminateCheckbox {...getToggleAllPageRowsSelectedProps()} />
-            </div>
-          ),
-          // The cell can use the individual row's getToggleRowSelectedProps method
-          // to the render a checkbox
-          Cell: ({ row }) => (
-            <div>
-              <IndeterminateCheckbox {...row.getToggleRowSelectedProps()} />
-            </div>
-          ),
-        },
-        ...columns,
-      ]);
-    }
-  );
-
-  // Render the UI for your table
-  return (
-    <div>
-      <BTable striped bordered hover size="sm" {...getTableProps()}>
-        <thead>
-          {headerGroups.map((headerGroup) => (
-            <tr {...headerGroup.getHeaderGroupProps()}>
-              {headerGroup.headers.map((column: any) => (
-                // Add the sorting props to control sorting. For this example
-                // we can add them into the header props
-                <th
-                  className="p-2"
-                  {...column.getHeaderProps(column.getSortByToggleProps())}
-                >
-                  {column.render("Header")}
-                  {/* Add a sort direction indicator */}
-                  <span>
-                    {column.isSorted
-                      ? column.isSortedDesc
-                        ? " 🔽"
-                        : " 🔼"
-                      : ""}
-                  </span>
-                </th>
-              ))}
-            </tr>
-          ))}
-        </thead>
-        <tbody {...getTableBodyProps()}>
-          {page.map((row, i) => {
-            prepareRow(row);
-            return (
-              <tr {...row.getRowProps()}>
-                {row.cells.map((cell) => {
-                  return (
-                    <td className="p-2" {...cell.getCellProps()}>
-                      {cell.render("Cell")}
-                    </td>
-                  );
-                })}
-              </tr>
-            );
-          })}
-        </tbody>
-      </BTable>
-
-      <div>
-        <nav aria-label="Page navigation example">
-          <ul className="pagination">
-            <li className="page-item">
-              <button
-                className="page-link pointer"
-                onClick={() => gotoPage(0)}
-                disabled={!canPreviousPage}
-              >
-                {"<<"}
-              </button>
-            </li>
-            <li className="page-item">
-              <button
-                className="page-link pointer"
-                onClick={() => previousPage()}
-                disabled={!canPreviousPage}
-              >
-                {"<"}
-              </button>
-            </li>
-            <li className="page-item">
-              <button
-                className="page-link pointer"
-                onClick={() => nextPage()}
-                disabled={!canNextPage}
-              >
-                {">"}
-              </button>
-            </li>
-            <li className="page-item">
-              <button
-                className="page-link pointer"
-                onClick={() => gotoPage(pageCount - 1)}
-                disabled={!canNextPage}
-              >
-                {">>"}
-              </button>
-            </li>
-          </ul>
-        </nav>
-        <Text>
-          Page{" "}
-          <strong>
-            {pageIndex + 1} of {pageOptions.length}
-          </strong>{" "}
-        </Text>
-        <Text>
-          | Go to page:{" "}
-          <input
-            type="number"
-            defaultValue={pageIndex + 1}
-            onChange={(e) => {
-              const page = e.target.value ? Number(e.target.value) - 1 : 0;
-              gotoPage(page);
-            }}
-            style={{ width: "100px" }}
-          />
-        </Text>
-        <select
-          className="mx-3"
-          value={pageSize}
-          onChange={(e) => {
-            setPageSize(Number(e.target.value));
-          }}
-        >
-          {[10, 20, 30, 40, 50].map((pageSize) => (
-            <option key={pageSize} value={pageSize}>
-              Show {pageSize}
-            </option>
-          ))}
-        </select>
-
-        <br />
-        <br />
-        <pre>
-          <code>
-            {JSON.stringify(
-              {
-                selectedRowIds: selectedRowIds,
-                "selectedFlatRows[].original": selectedFlatRows.map(
-                  (d) => d.original
-                ),
-              },
-              null,
-              2
-            )}
-          </code>
-        </pre>
-      </div>
-    </div>
-  );
-}
-
 function IncomesTable(props: any) {
   const columns = useMemo(
     () => [
@@ -296,17 +102,78 @@ function IncomesTable(props: any) {
   );
 
   const [data, setData] = useState([]);
+  let [pageNumber, setPageNumber] = useState(0);
+  let [pageSize, setPageSize] = useState(10);
+  const [totalPageCount, setTotalPageCount] = useState(0);
+
+  console.log("pageNumber = ", pageNumber);
+  console.log("pageSize = ", pageSize);
+
+  // Use the state and functions returned from useTable to build your UI
+  const {
+    getTableProps,
+    getTableBodyProps,
+    headerGroups,
+    prepareRow,
+    page, // Instead of using 'rows', we'll use page,
+    // which has only the rows for the active page
+
+    selectedFlatRows,
+    state: { selectedRowIds },
+  } = useTable(
+    {
+      columns,
+      data,
+    },
+    useSortBy,
+    usePagination,
+    useRowSelect,
+    (hooks) => {
+      hooks.visibleColumns.push((columns) => [
+        // Let's make a column for selection
+        {
+          id: "selection",
+          // The header can use the table's getToggleAllRowsSelectedProps method
+          // to render a checkbox
+          Header: ({ getToggleAllPageRowsSelectedProps }) => (
+            <div>
+              <IndeterminateCheckbox {...getToggleAllPageRowsSelectedProps()} />
+            </div>
+          ),
+          // The cell can use the individual row's getToggleRowSelectedProps method
+          // to the render a checkbox
+          Cell: ({ row }) => (
+            <div>
+              <IndeterminateCheckbox {...row.getToggleRowSelectedProps()} />
+            </div>
+          ),
+        },
+        ...columns,
+      ]);
+    }
+  );
 
   useEffect(() => {
-    getIncomesListRequest();
-  }, []);
+    if (pageNumber >= 0 && pageSize >= 10) {
+      getIncomesListRequest(pageNumber, pageSize);
+    }
+  }, [pageNumber, pageSize]);
 
-  const getIncomesListRequest = async () => {
+  const getIncomesListRequest = async (
+    pageNumber: number,
+    pageSize: number
+  ) => {
     try {
       const rootUrl = getRootUrl();
       const token = localStorage.getItem("token");
+      const userId = localStorage.getItem("userId");
 
       const response = await axios.get(`${rootUrl}/incomes`, {
+        params: {
+          pageNumber: pageNumber + 1,
+          pageSize: pageSize,
+          userId: userId,
+        },
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -332,6 +199,7 @@ function IncomesTable(props: any) {
             }
           );
           setData(formattedIncomesList);
+          setTotalPageCount(Math.ceil(responseData.allCount / pageSize));
         }
       }
     } catch (e) {
@@ -353,7 +221,151 @@ function IncomesTable(props: any) {
 
   return (
     <div className="mx-5 my-2">
-      <Table columns={columns} data={data} />
+      <div>
+        <BTable striped bordered hover size="sm" {...getTableProps()}>
+          <thead>
+            {headerGroups.map((headerGroup) => (
+              <tr {...headerGroup.getHeaderGroupProps()}>
+                {headerGroup.headers.map((column: any) => (
+                  // Add the sorting props to control sorting. For this example
+                  // we can add them into the header props
+                  <th
+                    className="p-2"
+                    {...column.getHeaderProps(column.getSortByToggleProps())}
+                  >
+                    {column.render("Header")}
+                    {/* Add a sort direction indicator */}
+                    <span>
+                      {column.isSorted
+                        ? column.isSortedDesc
+                          ? " 🔽"
+                          : " 🔼"
+                        : ""}
+                    </span>
+                  </th>
+                ))}
+              </tr>
+            ))}
+          </thead>
+          <tbody {...getTableBodyProps()}>
+            {page.map((row, i) => {
+              prepareRow(row);
+              return (
+                <tr {...row.getRowProps()}>
+                  {row.cells.map((cell) => {
+                    return (
+                      <td className="p-2" {...cell.getCellProps()}>
+                        {cell.render("Cell")}
+                      </td>
+                    );
+                  })}
+                </tr>
+              );
+            })}
+          </tbody>
+        </BTable>
+
+        <div>
+          <nav aria-label="Page navigation example">
+            <ul className="pagination">
+              <li className="page-item">
+                <button
+                  className="page-link pointer"
+                  onClick={() => setPageNumber(0)}
+                  disabled={pageNumber === 0 ? true : false}
+                >
+                  {"<<"}
+                </button>
+              </li>
+              <li className="page-item">
+                <button
+                  className="page-link pointer"
+                  onClick={() => {
+                    if (pageNumber > 0) {
+                      pageNumber -= 1;
+                      setPageNumber(pageNumber);
+                    }
+                  }}
+                >
+                  {"<"}
+                </button>
+              </li>
+              <li className="page-item">
+                <button
+                  className="page-link pointer"
+                  onClick={() => {
+                    if (pageNumber < totalPageCount - 1) {
+                      pageNumber += 1;
+                      setPageNumber(pageNumber);
+                    }
+                  }}
+                >
+                  {">"}
+                </button>
+              </li>
+              <li className="page-item">
+                <button
+                  className="page-link pointer"
+                  onClick={() => setPageNumber(totalPageCount - 1)}
+                  disabled={pageNumber === totalPageCount ? true : false}
+                >
+                  {">>"}
+                </button>
+              </li>
+            </ul>
+          </nav>
+          <Text>
+            Page{" "}
+            <strong>
+              {pageNumber + 1} of {totalPageCount}
+            </strong>{" "}
+          </Text>
+          <Text>
+            | Go to page:{" "}
+            <input
+              type="number"
+              defaultValue={pageNumber + 1}
+              onChange={(e) => {
+                const page = e.target.value ? Number(e.target.value) - 1 : 0;
+                if (page >= 0 && page < totalPageCount) {
+                  setPageNumber(page);
+                }
+              }}
+              style={{ width: "100px" }}
+            />
+          </Text>
+          <select
+            className="mx-3"
+            value={pageSize}
+            onChange={(e) => {
+              setPageSize(Number(e.target.value));
+            }}
+          >
+            {[10, 20, 30, 40, 50].map((pageSize) => (
+              <option key={pageSize} value={pageSize}>
+                Show {pageSize}
+              </option>
+            ))}
+          </select>
+
+          <br />
+          <br />
+          <pre>
+            <code>
+              {JSON.stringify(
+                {
+                  selectedRowIds: selectedRowIds,
+                  "selectedFlatRows[].original": selectedFlatRows.map(
+                    (d) => d.original
+                  ),
+                },
+                null,
+                2
+              )}
+            </code>
+          </pre>
+        </div>
+      </div>
     </div>
   );
 }

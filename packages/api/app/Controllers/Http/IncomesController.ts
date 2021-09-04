@@ -1,6 +1,7 @@
 import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext';
 import Income from 'App/Models/Income';
 import { schema } from '@ioc:Adonis/Core/Validator';
+import Database from '@ioc:Adonis/Lucid/Database';
 
 export default class IncomesController {
   public async createIncome({ request, response }: HttpContextContract) {
@@ -10,6 +11,7 @@ export default class IncomesController {
       type: schema.string({ trim: true }),
       currency: schema.string({ trim: true }),
       amount: schema.number(),
+      date: schema.date({ format: 'yyyy-MM-dd HH:mm:ss' }),
       user_id: schema.number(),
     });
     const body = await request.validate({ schema: newIncomeSchema });
@@ -21,6 +23,7 @@ export default class IncomesController {
       const type = body.type;
       const currency = body.currency;
       const amount = body.amount;
+      const date = body.date;
       const user_id = body.user_id;
 
       const income = new Income();
@@ -29,6 +32,7 @@ export default class IncomesController {
       income.type = type;
       income.currency = currency;
       income.amount = amount;
+      income.date = date;
       income.user_id = user_id;
       await income.save();
 
@@ -42,13 +46,25 @@ export default class IncomesController {
     }
   }
 
-  public async index({ response }: HttpContextContract) {
-    const incomes = await Income.all();
+  public async index({ request, response }: HttpContextContract) {
+    const pageNumber = request.qs().pageNumber ? request.qs().pageNumber : 1;
+    const pageSize = request.qs().pageSize ? request.qs().pageSize : 10;
+    const userId = request.qs().userId ? request.qs().userId : 0;
+    console.log('pageNumber = ', pageNumber);
+    console.log('pageSize = ', pageSize);
+    console.log('userId = ', userId);
+
+    const incomes = await Database.from('incomes')
+      .where('user_id', userId)
+      .paginate(pageNumber, pageSize);
+    const incomesJSON = incomes.toJSON();
+    console.log('incomesJSON = ', incomesJSON);
 
     const formattedIncomesList: unknown[] = [];
-    if (incomes) {
-      for (let index = 0; index < incomes.length; index++) {
-        const item = incomes[index];
+    if (incomesJSON && incomesJSON.data) {
+      const incomesDataList = incomesJSON.data;
+      for (let index = 0; index < incomesDataList.length; index++) {
+        const item = incomesDataList[index];
 
         const obj: any = {
           id: item.id,
@@ -57,23 +73,31 @@ export default class IncomesController {
           type: item.type,
           currency: item.currency,
           amount: item.amount,
+          date: item.date,
           created_at: item.created_at,
           updated_at: item.updated_at,
         };
 
-        const incomeUserList = await item.related('user').query();
-        if (incomeUserList) {
-          const user = incomeUserList[0];
-          obj.user = user;
+        const income = await Income.find(item.id);
+        if (income) {
+          const incomeUserList = await income.related('user').query();
+          if (incomeUserList) {
+            const user = incomeUserList[0];
+            obj.user = user;
+          }
         }
 
         formattedIncomesList.push(obj);
       }
     }
 
+    const allCount = (await Income.query().where('user_id', userId)).length;
+
     response.status(200).json({
       message: 'getIncomes',
       incomes: formattedIncomesList,
+      count: formattedIncomesList.length,
+      allCount: allCount,
     });
   }
 
@@ -93,6 +117,7 @@ export default class IncomesController {
         incomeObj.type = income.type;
         incomeObj.currency = income.currency;
         incomeObj.amount = income.amount;
+        incomeObj.date = income.date;
         incomeObj.created_at = income.created_at;
         incomeObj.updated_at = income.updated_at;
 

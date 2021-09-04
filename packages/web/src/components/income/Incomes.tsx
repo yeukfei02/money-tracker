@@ -25,7 +25,7 @@ function Incomes(props: any) {
       <Box>
         <div className="d-flex justify-content-end m-4">
           <Button
-            primary
+            secondary
             label="Create Income"
             onClick={() => handleCreateIncomeClick()}
           />

@@ -1,7 +1,9 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { Text } from "grommet";
+import { View, Edit, Trash } from "grommet-icons";
 import BTable from "react-bootstrap/Table";
 import { useTable, useSortBy, useRowSelect, usePagination } from "react-table";
+import { useHistory } from "react-router";
 import dayjs from "dayjs";
 import axios from "axios";
 import { getRootUrl } from "../../helpers/helpers";
@@ -23,7 +25,92 @@ const IndeterminateCheckbox = React.forwardRef(
   }
 );
 
-function Table({ columns, data }: any) {
+function ExpensesTable(props: any) {
+  const history = useHistory();
+
+  const columns = useMemo(
+    () => [
+      {
+        Header: "Info",
+        columns: [
+          {
+            Header: "Name",
+            accessor: "name",
+          },
+          {
+            Header: "Description",
+            accessor: "description",
+          },
+        ],
+      },
+      {
+        Header: "Details",
+        columns: [
+          {
+            Header: "Type",
+            accessor: "type",
+          },
+          {
+            Header: "Currency",
+            accessor: "currency",
+          },
+          {
+            Header: "Amount",
+            accessor: "amount",
+          },
+          {
+            Header: "Date",
+            accessor: "date",
+          },
+          {
+            Header: "Created at",
+            accessor: "created_at",
+          },
+        ],
+      },
+      {
+        Header: "Actions",
+        columns: [
+          {
+            Header: "Actions",
+            accessor: (row: any) => {
+              const rowId = row ? row.id : 0;
+
+              return (
+                <div className="d-flex flex-row">
+                  <View
+                    className="mx-1 pointer"
+                    color="blue"
+                    onClick={() => handleViewButtonClick(rowId)}
+                  />
+                  <Edit
+                    className="mx-1 pointer"
+                    color="green"
+                    onClick={() => handleEditButtonClick(rowId)}
+                  />
+                  <Trash
+                    className="mx-1 pointer"
+                    color="red"
+                    onClick={() => handleDeleteButtonClick(rowId)}
+                  />
+                </div>
+              );
+            },
+          },
+        ],
+      },
+    ],
+    []
+  );
+
+  const [data, setData] = useState([]);
+  let [pageNumber, setPageNumber] = useState(0);
+  let [pageSize, setPageSize] = useState(10);
+  const [totalPageCount, setTotalPageCount] = useState(0);
+
+  console.log("pageNumber = ", pageNumber + 1);
+  console.log("pageSize = ", pageSize);
+
   // Use the state and functions returned from useTable to build your UI
   const {
     getTableProps,
@@ -33,17 +120,8 @@ function Table({ columns, data }: any) {
     page, // Instead of using 'rows', we'll use page,
     // which has only the rows for the active page
 
-    // The rest of these things are super handy, too ;)
-    canPreviousPage,
-    canNextPage,
-    pageOptions,
-    pageCount,
-    gotoPage,
-    nextPage,
-    previousPage,
-    setPageSize,
     selectedFlatRows,
-    state: { pageIndex, pageSize, selectedRowIds },
+    state: { selectedRowIds },
   } = useTable(
     {
       columns,
@@ -77,236 +155,27 @@ function Table({ columns, data }: any) {
     }
   );
 
-  // Render the UI for your table
-  return (
-    <div>
-      <BTable striped bordered hover size="sm" {...getTableProps()}>
-        <thead>
-          {headerGroups.map((headerGroup) => (
-            <tr {...headerGroup.getHeaderGroupProps()}>
-              {headerGroup.headers.map((column: any) => (
-                // Add the sorting props to control sorting. For this example
-                // we can add them into the header props
-                <th
-                  className="p-2"
-                  {...column.getHeaderProps(column.getSortByToggleProps())}
-                >
-                  {column.render("Header")}
-                  {/* Add a sort direction indicator */}
-                  <span>
-                    {column.isSorted
-                      ? column.isSortedDesc
-                        ? " 🔽"
-                        : " 🔼"
-                      : ""}
-                  </span>
-                </th>
-              ))}
-            </tr>
-          ))}
-        </thead>
-        <tbody {...getTableBodyProps()}>
-          {page.map((row, i) => {
-            prepareRow(row);
-            return (
-              <tr {...row.getRowProps()}>
-                {row.cells.map((cell) => {
-                  return (
-                    <td className="p-2" {...cell.getCellProps()}>
-                      {cell.render("Cell")}
-                    </td>
-                  );
-                })}
-              </tr>
-            );
-          })}
-        </tbody>
-      </BTable>
-
-      <div>
-        <nav aria-label="Page navigation example">
-          <ul className="pagination">
-            <li className="page-item">
-              <button
-                className="page-link pointer"
-                onClick={() => gotoPage(0)}
-                disabled={!canPreviousPage}
-              >
-                {"<<"}
-              </button>
-            </li>
-            <li className="page-item">
-              <button
-                className="page-link pointer"
-                onClick={() => previousPage()}
-                disabled={!canPreviousPage}
-              >
-                {"<"}
-              </button>
-            </li>
-            <li className="page-item">
-              <button
-                className="page-link pointer"
-                onClick={() => nextPage()}
-                disabled={!canNextPage}
-              >
-                {">"}
-              </button>
-            </li>
-            <li className="page-item">
-              <button
-                className="page-link pointer"
-                onClick={() => gotoPage(pageCount - 1)}
-                disabled={!canNextPage}
-              >
-                {">>"}
-              </button>
-            </li>
-          </ul>
-        </nav>
-        <Text>
-          Page{" "}
-          <strong>
-            {pageIndex + 1} of {pageOptions.length}
-          </strong>{" "}
-        </Text>
-        <Text>
-          | Go to page:{" "}
-          <input
-            type="number"
-            defaultValue={pageIndex + 1}
-            onChange={(e) => {
-              const page = e.target.value ? Number(e.target.value) - 1 : 0;
-              gotoPage(page);
-            }}
-            style={{ width: "100px" }}
-          />
-        </Text>
-        <select
-          className="mx-3"
-          value={pageSize}
-          onChange={(e) => {
-            setPageSize(Number(e.target.value));
-          }}
-        >
-          {[10, 20, 30, 40, 50].map((pageSize) => (
-            <option key={pageSize} value={pageSize}>
-              Show {pageSize}
-            </option>
-          ))}
-        </select>
-
-        <br />
-        <br />
-        <pre>
-          <code>
-            {JSON.stringify(
-              {
-                selectedRowIds: selectedRowIds,
-                "selectedFlatRows[].original": selectedFlatRows.map(
-                  (d) => d.original
-                ),
-              },
-              null,
-              2
-            )}
-          </code>
-        </pre>
-      </div>
-    </div>
-  );
-}
-
-function ExpensesTable(props: any) {
-  const columns = useMemo(
-    () => [
-      {
-        Header: "Info",
-        columns: [
-          {
-            Header: "Name",
-            accessor: "name",
-          },
-          {
-            Header: "Description",
-            accessor: "description",
-          },
-        ],
-      },
-      {
-        Header: "Details",
-        columns: [
-          {
-            Header: "Type",
-            accessor: "type",
-          },
-          {
-            Header: "Currency",
-            accessor: "currency",
-          },
-          {
-            Header: "Amount",
-            accessor: "amount",
-          },
-          {
-            Header: "Created at",
-            accessor: "created_at",
-          },
-        ],
-      },
-      {
-        Header: "Actions",
-        columns: [
-          {
-            Header: "Actions",
-            accessor: (row: any) => {
-              const rowId = row ? row.id : 0;
-
-              return (
-                <div className="d-flex flex-row">
-                  <button
-                    type="button"
-                    className="btn btn-primary mx-2"
-                    onClick={() => handleViewButtonClick(rowId)}
-                  >
-                    View
-                  </button>
-                  <button
-                    type="button"
-                    className="btn btn-success mx-2"
-                    onClick={() => handleEditButtonClick(rowId)}
-                  >
-                    Edit
-                  </button>
-                  <button
-                    type="button"
-                    className="btn btn-danger mx-2"
-                    onClick={() => handleDeleteButtonClick(rowId)}
-                  >
-                    Delete
-                  </button>
-                </div>
-              );
-            },
-          },
-        ],
-      },
-    ],
-    []
-  );
-
-  const [data, setData] = useState([]);
-
   useEffect(() => {
-    getExpensesListRequest();
-  }, []);
+    if (pageNumber >= 0 && pageSize >= 10) {
+      getExpensesListRequest(pageNumber, pageSize);
+    }
+  }, [pageNumber, pageSize]);
 
-  const getExpensesListRequest = async () => {
+  const getExpensesListRequest = async (
+    pageNumber: number,
+    pageSize: number
+  ) => {
     try {
       const rootUrl = getRootUrl();
       const token = localStorage.getItem("token");
+      const userId = localStorage.getItem("userId");
 
       const response = await axios.get(`${rootUrl}/expenses`, {
+        params: {
+          pageNumber: pageNumber + 1,
+          pageSize: pageSize,
+          userId: userId,
+        },
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -320,6 +189,7 @@ function ExpensesTable(props: any) {
           const formattedExpensesList = expensesList.map(
             (item: any, i: number) => {
               if (item) {
+                item.date = dayjs(item.date).format("YYYY-MM-DD");
                 item.created_at = dayjs(item.created_at).format(
                   "YYYY-MM-DD HH:mm:ss"
                 );
@@ -332,6 +202,7 @@ function ExpensesTable(props: any) {
             }
           );
           setData(formattedExpensesList);
+          setTotalPageCount(Math.ceil(responseData.allCount / pageSize));
         }
       }
     } catch (e) {
@@ -339,21 +210,194 @@ function ExpensesTable(props: any) {
     }
   };
 
-  const handleViewButtonClick = (rowId: number) => {
-    console.log(rowId);
+  const deleteRowByIdRequest = async (id: string) => {
+    try {
+      const rootUrl = getRootUrl();
+      const token = localStorage.getItem("token");
+
+      const response = await axios.delete(`${rootUrl}/expenses/${id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      if (response) {
+        const responseData = response.data;
+        console.log("responseData = ", responseData);
+
+        if (response.status === 200) {
+          await getExpensesListRequest(pageNumber, pageSize);
+        }
+      }
+    } catch (e) {
+      console.log("error = ", e);
+    }
   };
 
-  const handleEditButtonClick = (rowId: number) => {
+  const handleViewButtonClick = async (rowId: number) => {
     console.log(rowId);
+    history.push(`/expenses/details/${rowId}`);
   };
 
-  const handleDeleteButtonClick = (rowId: number) => {
+  const handleEditButtonClick = async (rowId: number) => {
     console.log(rowId);
+    history.push(`/expenses/details/${rowId}`);
+  };
+
+  const handleDeleteButtonClick = async (rowId: number) => {
+    console.log(rowId);
+    if (rowId) {
+      const rowIdStr = rowId.toString();
+      await deleteRowByIdRequest(rowIdStr);
+    }
   };
 
   return (
     <div className="mx-5 my-2">
-      <Table columns={columns} data={data} />
+      <div>
+        <BTable striped bordered hover size="sm" {...getTableProps()}>
+          <thead>
+            {headerGroups.map((headerGroup) => (
+              <tr {...headerGroup.getHeaderGroupProps()}>
+                {headerGroup.headers.map((column: any) => (
+                  // Add the sorting props to control sorting. For this example
+                  // we can add them into the header props
+                  <th
+                    className="p-2"
+                    {...column.getHeaderProps(column.getSortByToggleProps())}
+                  >
+                    {column.render("Header")}
+                    {/* Add a sort direction indicator */}
+                    <span>
+                      {column.isSorted
+                        ? column.isSortedDesc
+                          ? " 🔽"
+                          : " 🔼"
+                        : ""}
+                    </span>
+                  </th>
+                ))}
+              </tr>
+            ))}
+          </thead>
+          <tbody {...getTableBodyProps()}>
+            {page.map((row, i) => {
+              prepareRow(row);
+              return (
+                <tr {...row.getRowProps()}>
+                  {row.cells.map((cell) => {
+                    return (
+                      <td className="p-2" {...cell.getCellProps()}>
+                        {cell.render("Cell")}
+                      </td>
+                    );
+                  })}
+                </tr>
+              );
+            })}
+          </tbody>
+        </BTable>
+
+        <div>
+          <nav aria-label="Page navigation example">
+            <ul className="pagination">
+              <li className="page-item">
+                <button
+                  className="page-link pointer"
+                  onClick={() => setPageNumber(0)}
+                  disabled={pageNumber === 0 ? true : false}
+                >
+                  {"<<"}
+                </button>
+              </li>
+              <li className="page-item">
+                <button
+                  className="page-link pointer"
+                  onClick={() => {
+                    if (pageNumber > 0) {
+                      pageNumber -= 1;
+                      setPageNumber(pageNumber);
+                    }
+                  }}
+                >
+                  {"<"}
+                </button>
+              </li>
+              <li className="page-item">
+                <button
+                  className="page-link pointer"
+                  onClick={() => {
+                    if (pageNumber < totalPageCount - 1) {
+                      pageNumber += 1;
+                      setPageNumber(pageNumber);
+                    }
+                  }}
+                >
+                  {">"}
+                </button>
+              </li>
+              <li className="page-item">
+                <button
+                  className="page-link pointer"
+                  onClick={() => setPageNumber(totalPageCount - 1)}
+                  disabled={pageNumber === totalPageCount ? true : false}
+                >
+                  {">>"}
+                </button>
+              </li>
+            </ul>
+          </nav>
+          <Text>
+            Page{" "}
+            <strong>
+              {pageNumber + 1} of {totalPageCount}
+            </strong>{" "}
+          </Text>
+          <Text>
+            | Go to page:{" "}
+            <input
+              type="number"
+              defaultValue={pageNumber + 1}
+              onChange={(e) => {
+                const page = e.target.value ? Number(e.target.value) - 1 : 0;
+                if (page >= 0 && page < totalPageCount) {
+                  setPageNumber(page);
+                }
+              }}
+              style={{ width: "100px" }}
+            />
+          </Text>
+          <select
+            className="mx-3"
+            value={pageSize}
+            onChange={(e) => {
+              setPageSize(Number(e.target.value));
+            }}
+          >
+            {[10, 20, 30, 40, 50].map((pageSize) => (
+              <option key={pageSize} value={pageSize}>
+                Show {pageSize}
+              </option>
+            ))}
+          </select>
+
+          <br />
+          <br />
+          <pre>
+            <code>
+              {JSON.stringify(
+                {
+                  selectedRowIds: selectedRowIds,
+                  "selectedFlatRows[].original": selectedFlatRows.map(
+                    (d) => d.original
+                  ),
+                },
+                null,
+                2
+              )}
+            </code>
+          </pre>
+        </div>
+      </div>
     </div>
   );
 }

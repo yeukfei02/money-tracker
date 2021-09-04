@@ -1,6 +1,7 @@
 import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext';
 import Expense from 'App/Models/Expense';
 import { schema } from '@ioc:Adonis/Core/Validator';
+import Database from '@ioc:Adonis/Lucid/Database';
 export default class ExpensesController {
   public async createExpense({ request, response }: HttpContextContract) {
     const newExpenseSchema = schema.create({
@@ -9,6 +10,7 @@ export default class ExpensesController {
       type: schema.string({ trim: true }),
       currency: schema.string({ trim: true }),
       amount: schema.number(),
+      date: schema.date({ format: 'yyyy-MM-dd HH:mm:ss' }),
       user_id: schema.number(),
     });
     const body = await request.validate({ schema: newExpenseSchema });
@@ -20,6 +22,7 @@ export default class ExpensesController {
       const type = body.type;
       const currency = body.currency;
       const amount = body.amount;
+      const date = body.date;
       const user_id = body.user_id;
 
       const expense = new Expense();
@@ -28,6 +31,7 @@ export default class ExpensesController {
       expense.type = type;
       expense.currency = currency;
       expense.amount = amount;
+      expense.date = date;
       expense.user_id = user_id;
       await expense.save();
 
@@ -41,13 +45,25 @@ export default class ExpensesController {
     }
   }
 
-  public async index({ response }: HttpContextContract) {
-    const expenses = await Expense.all();
+  public async index({ request, response }: HttpContextContract) {
+    const pageNumber = request.qs().pageNumber ? request.qs().pageNumber : 1;
+    const pageSize = request.qs().pageSize ? request.qs().pageSize : 10;
+    const userId = request.qs().userId ? request.qs().userId : 0;
+    console.log('pageNumber = ', pageNumber);
+    console.log('pageSize = ', pageSize);
+    console.log('userId = ', userId);
+
+    const expenses = await Database.from('expenses')
+      .where('user_id', userId)
+      .paginate(pageNumber, pageSize);
+    const expensesJSON = expenses.toJSON();
+    console.log('expensesJSON = ', expensesJSON);
 
     const formattedExpensesList: unknown[] = [];
-    if (expenses) {
-      for (let index = 0; index < expenses.length; index++) {
-        const item = expenses[index];
+    if (expensesJSON && expensesJSON.data) {
+      const expensesDataList = expensesJSON.data;
+      for (let index = 0; index < expensesDataList.length; index++) {
+        const item = expensesDataList[index];
 
         const obj: any = {
           id: item.id,
@@ -56,23 +72,31 @@ export default class ExpensesController {
           type: item.type,
           currency: item.currency,
           amount: item.amount,
+          date: item.date,
           created_at: item.created_at,
           updated_at: item.updated_at,
         };
 
-        const incomeUserList = await item.related('user').query();
-        if (incomeUserList) {
-          const user = incomeUserList[0];
-          obj.user = user;
+        const expense = await Expense.find(item.id);
+        if (expense) {
+          const expenseUserList = await expense.related('user').query();
+          if (expenseUserList) {
+            const user = expenseUserList[0];
+            obj.user = user;
+          }
         }
 
         formattedExpensesList.push(obj);
       }
     }
 
+    const allCount = (await Expense.query().where('user_id', userId)).length;
+
     response.status(200).json({
       message: 'getExpenses',
       expenses: formattedExpensesList,
+      count: formattedExpensesList.length,
+      allCount: allCount,
     });
   }
 
@@ -91,6 +115,8 @@ export default class ExpensesController {
         expenseObj.description = expense.description;
         expenseObj.type = expense.type;
         expenseObj.currency = expense.currency;
+        expenseObj.amount = expense.amount;
+        expenseObj.date = expense.date;
         expenseObj.created_at = expense.created_at;
         expenseObj.updated_at = expense.updated_at;
 

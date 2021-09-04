@@ -59,6 +59,10 @@ function IncomesTable(props: any) {
             accessor: "amount",
           },
           {
+            Header: "Date",
+            accessor: "date",
+          },
+          {
             Header: "Created at",
             accessor: "created_at",
           },
@@ -185,6 +189,7 @@ function IncomesTable(props: any) {
           const formattedIncomesList = incomesList.map(
             (item: any, i: number) => {
               if (item) {
+                item.date = dayjs(item.date).format("YYYY-MM-DD");
                 item.created_at = dayjs(item.created_at).format(
                   "YYYY-MM-DD HH:mm:ss"
                 );

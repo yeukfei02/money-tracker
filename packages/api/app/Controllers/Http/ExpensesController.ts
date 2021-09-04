@@ -10,6 +10,7 @@ export default class ExpensesController {
       type: schema.string({ trim: true }),
       currency: schema.string({ trim: true }),
       amount: schema.number(),
+      date: schema.date({ format: 'yyyy-MM-dd HH:mm:ss' }),
       user_id: schema.number(),
     });
     const body = await request.validate({ schema: newExpenseSchema });
@@ -21,6 +22,7 @@ export default class ExpensesController {
       const type = body.type;
       const currency = body.currency;
       const amount = body.amount;
+      const date = body.date;
       const user_id = body.user_id;
 
       const expense = new Expense();
@@ -29,6 +31,7 @@ export default class ExpensesController {
       expense.type = type;
       expense.currency = currency;
       expense.amount = amount;
+      expense.date = date;
       expense.user_id = user_id;
       await expense.save();
 
@@ -69,6 +72,7 @@ export default class ExpensesController {
           type: item.type,
           currency: item.currency,
           amount: item.amount,
+          date: item.date,
           created_at: item.created_at,
           updated_at: item.updated_at,
         };
@@ -112,6 +116,7 @@ export default class ExpensesController {
         expenseObj.type = expense.type;
         expenseObj.currency = expense.currency;
         expenseObj.amount = expense.amount;
+        expenseObj.date = expense.date;
         expenseObj.created_at = expense.created_at;
         expenseObj.updated_at = expense.updated_at;
 

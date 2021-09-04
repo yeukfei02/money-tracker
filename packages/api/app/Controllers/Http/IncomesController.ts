@@ -11,6 +11,7 @@ export default class IncomesController {
       type: schema.string({ trim: true }),
       currency: schema.string({ trim: true }),
       amount: schema.number(),
+      date: schema.date({ format: 'yyyy-MM-dd HH:mm:ss' }),
       user_id: schema.number(),
     });
     const body = await request.validate({ schema: newIncomeSchema });
@@ -22,6 +23,7 @@ export default class IncomesController {
       const type = body.type;
       const currency = body.currency;
       const amount = body.amount;
+      const date = body.date;
       const user_id = body.user_id;
 
       const income = new Income();
@@ -30,6 +32,7 @@ export default class IncomesController {
       income.type = type;
       income.currency = currency;
       income.amount = amount;
+      income.date = date;
       income.user_id = user_id;
       await income.save();
 
@@ -70,6 +73,7 @@ export default class IncomesController {
           type: item.type,
           currency: item.currency,
           amount: item.amount,
+          date: item.date,
           created_at: item.created_at,
           updated_at: item.updated_at,
         };
@@ -113,6 +117,7 @@ export default class IncomesController {
         incomeObj.type = income.type;
         incomeObj.currency = income.currency;
         incomeObj.amount = income.amount;
+        incomeObj.date = income.date;
         incomeObj.created_at = income.created_at;
         incomeObj.updated_at = income.updated_at;
 

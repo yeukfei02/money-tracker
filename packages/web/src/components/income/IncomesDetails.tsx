@@ -8,6 +8,7 @@ import {
   CardBody,
   TextInput,
   Text,
+  DateInput,
 } from "grommet";
 import { useParams, useHistory } from "react-router";
 import CustomAppBar from "../customAppBar/CustomAppBar";
@@ -26,6 +27,7 @@ function IncomesDetails(props: any) {
   const [type, setType] = useState("");
   const [currency, setCurrency] = useState("");
   const [amount, setAmount] = useState(0);
+  const [date, setDate] = useState("");
 
   const [isUserLoggedIn, setIsUserLoggedIn] = useState(false);
 
@@ -133,6 +135,13 @@ function IncomesDetails(props: any) {
               onChange={(e) => handleAmountChange(e)}
             />
 
+            <Text>Date</Text>
+            <DateInput
+              format="yyyy-mm-dd"
+              value={date}
+              onChange={({ value }: any) => handleDateChange(value)}
+            />
+
             <Button
               className="mt-3"
               secondary
@@ -165,6 +174,12 @@ function IncomesDetails(props: any) {
   const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const amountFloat = parseFloat(e.target.value);
     setAmount(amountFloat);
+  };
+
+  const handleDateChange = (value: any) => {
+    if (value) {
+      setDate(value);
+    }
   };
 
   const handleUpdateClick = () => {

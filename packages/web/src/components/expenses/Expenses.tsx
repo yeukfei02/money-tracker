@@ -25,7 +25,7 @@ function Expenses(props: any) {
       <Box>
         <div className="d-flex justify-content-end m-4">
           <Button
-            primary
+            secondary
             label="Create Expense"
             onClick={() => handleCreateExpenseClick()}
           />

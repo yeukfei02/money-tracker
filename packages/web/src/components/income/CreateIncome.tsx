@@ -10,10 +10,12 @@ import {
   Select,
   TextArea,
   Text,
+  DateInput,
 } from "grommet";
 import { useHistory } from "react-router";
 import axios from "axios";
 import { getRootUrl } from "../../helpers/helpers";
+import dayjs from "dayjs";
 import CustomAppBar from "../customAppBar/CustomAppBar";
 import MainContent from "../mainContent/MainContent";
 
@@ -28,6 +30,7 @@ function CreateIncome(props: any) {
   const [otherType, setOtherType] = useState("");
   const [currency, setCurrency] = useState("");
   const [amount, setAmount] = useState(0);
+  const [date, setDate] = useState("");
 
   const [showTypeTextInput, setShowTypeTextInput] = useState(false);
 
@@ -143,6 +146,16 @@ function CreateIncome(props: any) {
               />
             </div>
 
+            <div className="my-3">
+              <Text>Date</Text>
+              <div className="my-2"></div>
+              <DateInput
+                format="yyyy-mm-dd"
+                value={date}
+                onChange={({ value }: any) => handleDateChange(value)}
+              />
+            </div>
+
             <Button
               className="mt-3"
               secondary
@@ -206,19 +219,36 @@ function CreateIncome(props: any) {
     setAmount(valueFloat);
   };
 
+  const handleDateChange = (value: any) => {
+    console.log(value);
+    if (value) {
+      setDate(value);
+    }
+  };
+
   const createIncomeRequest = async () => {
     try {
       const rootUrl = getRootUrl();
       const token = localStorage.getItem("token");
       const userId = localStorage.getItem("userId");
 
-      if (name && description && (type || otherType) && amount > 0 && userId) {
+      if (
+        name &&
+        description &&
+        (type || otherType) &&
+        amount > 0 &&
+        date &&
+        userId
+      ) {
         const bodyData = {
           name: name,
           description: description,
           type: type !== "Others" ? type : otherType,
           currency: currency,
           amount: amount,
+          date: date
+            ? dayjs(date[0]).format("YYYY-MM-DD HH:mm:ss")
+            : dayjs().format("YYYY-MM-DD HH:mm:ss"),
           user_id: userId,
         };
 

@@ -21,6 +21,9 @@ export default class Income extends BaseModel {
   @column()
   public amount: number;
 
+  @column.dateTime()
+  public date: DateTime;
+
   @column()
   public user_id: number;
 

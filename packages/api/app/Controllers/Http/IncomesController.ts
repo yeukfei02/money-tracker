@@ -1,9 +1,19 @@
 import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext';
 import Income from 'App/Models/Income';
+import { schema } from '@ioc:Adonis/Core/Validator';
 
 export default class IncomesController {
   public async createIncome({ request, response }: HttpContextContract) {
-    const body = request.body();
+    const newIncomeSchema = schema.create({
+      name: schema.string({ trim: true }),
+      description: schema.string({ trim: true }),
+      type: schema.string({ trim: true }),
+      amount: schema.number(),
+      user_id: schema.number(),
+    });
+    const body = await request.validate({ schema: newIncomeSchema });
+    console.log('body = ', body);
+
     if (body) {
       const name = body.name;
       const description = body.description;

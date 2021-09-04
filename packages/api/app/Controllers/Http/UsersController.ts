@@ -4,10 +4,17 @@ import User from 'App/Models/User';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { v4 as uuidv4 } from 'uuid';
+import { schema } from '@ioc:Adonis/Core/Validator';
 
 export default class UsersController {
   public async signup({ request, response }: HttpContextContract) {
-    const body = request.body();
+    const newSignupSchema = schema.create({
+      email: schema.string({ trim: true }),
+      password: schema.string({ trim: true }),
+    });
+    const body = await request.validate({ schema: newSignupSchema });
+    console.log('body = ', body);
+
     if (body) {
       const email = body.email;
       const password = bcrypt.hashSync(body.password);
@@ -37,7 +44,13 @@ export default class UsersController {
   }
 
   public async login({ request, response }: HttpContextContract) {
-    const body = request.body();
+    const newLoginSchema = schema.create({
+      email: schema.string({ trim: true }),
+      password: schema.string({ trim: true }),
+    });
+    const body = await request.validate({ schema: newLoginSchema });
+    console.log('body = ', body);
+
     if (body) {
       const email = body.email;
       const password = body.password;
@@ -140,7 +153,13 @@ export default class UsersController {
     const id = params.id;
 
     if (id) {
-      const body = request.body();
+      const newChangePasswordSchema = schema.create({
+        old_password: schema.string({ trim: true }),
+        new_password: schema.string({ trim: true }),
+      });
+      const body = await request.validate({ schema: newChangePasswordSchema });
+      console.log('body = ', body);
+
       if (body) {
         const idNum = parseInt(id, 10);
 

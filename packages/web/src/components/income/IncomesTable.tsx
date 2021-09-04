@@ -28,6 +28,14 @@ const IndeterminateCheckbox = React.forwardRef(
 function IncomesTable(props: any) {
   const history = useHistory();
 
+  const [data, setData] = useState([]);
+  let [pageNumber, setPageNumber] = useState(0);
+  let [pageSize, setPageSize] = useState(10);
+  const [totalPageCount, setTotalPageCount] = useState(0);
+
+  console.log("pageNumber = ", pageNumber + 1);
+  console.log("pageSize = ", pageSize);
+
   const columns = useMemo(
     () => [
       {
@@ -76,6 +84,50 @@ function IncomesTable(props: any) {
             accessor: (row: any) => {
               const rowId = row ? row.id : 0;
 
+              const deleteRowByIdRequest = async (id: string) => {
+                try {
+                  const rootUrl = getRootUrl();
+                  const token = localStorage.getItem("token");
+
+                  const response = await axios.delete(
+                    `${rootUrl}/incomes/${id}`,
+                    {
+                      headers: {
+                        Authorization: `Bearer ${token}`,
+                      },
+                    }
+                  );
+                  if (response) {
+                    const responseData = response.data;
+                    console.log("responseData = ", responseData);
+
+                    if (response.status === 200) {
+                      await getIncomesListRequest(pageNumber, pageSize);
+                    }
+                  }
+                } catch (e) {
+                  console.log("error = ", e);
+                }
+              };
+
+              const handleViewButtonClick = async (rowId: number) => {
+                console.log(rowId);
+                history.push(`/incomes/details/${rowId}`);
+              };
+
+              const handleEditButtonClick = async (rowId: number) => {
+                console.log(rowId);
+                history.push(`/incomes/details/${rowId}`);
+              };
+
+              const handleDeleteButtonClick = async (rowId: number) => {
+                console.log(rowId);
+                if (rowId) {
+                  const rowIdStr = rowId.toString();
+                  await deleteRowByIdRequest(rowIdStr);
+                }
+              };
+
               return (
                 <div className="d-flex flex-row">
                   <View
@@ -100,16 +152,8 @@ function IncomesTable(props: any) {
         ],
       },
     ],
-    []
+    [history, pageNumber, pageSize]
   );
-
-  const [data, setData] = useState([]);
-  let [pageNumber, setPageNumber] = useState(0);
-  let [pageSize, setPageSize] = useState(10);
-  const [totalPageCount, setTotalPageCount] = useState(0);
-
-  console.log("pageNumber = ", pageNumber + 1);
-  console.log("pageSize = ", pageSize);
 
   // Use the state and functions returned from useTable to build your UI
   const {
@@ -207,47 +251,6 @@ function IncomesTable(props: any) {
       }
     } catch (e) {
       console.log("error = ", e);
-    }
-  };
-
-  const deleteRowByIdRequest = async (id: string) => {
-    try {
-      const rootUrl = getRootUrl();
-      const token = localStorage.getItem("token");
-
-      const response = await axios.delete(`${rootUrl}/incomes/${id}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      if (response) {
-        const responseData = response.data;
-        console.log("responseData = ", responseData);
-
-        if (response.status === 200) {
-          await getIncomesListRequest(pageNumber, pageSize);
-        }
-      }
-    } catch (e) {
-      console.log("error = ", e);
-    }
-  };
-
-  const handleViewButtonClick = async (rowId: number) => {
-    console.log(rowId);
-    history.push(`/incomes/details/${rowId}`);
-  };
-
-  const handleEditButtonClick = async (rowId: number) => {
-    console.log(rowId);
-    history.push(`/incomes/details/${rowId}`);
-  };
-
-  const handleDeleteButtonClick = async (rowId: number) => {
-    console.log(rowId);
-    if (rowId) {
-      const rowIdStr = rowId.toString();
-      await deleteRowByIdRequest(rowIdStr);
     }
   };
 

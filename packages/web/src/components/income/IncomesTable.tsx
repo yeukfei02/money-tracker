@@ -266,21 +266,21 @@ function IncomesTable(props: any) {
                 <div className="d-flex flex-row">
                   <button
                     type="button"
-                    className="btn btn-primary mx-2"
+                    className="btn btn-primary mx-1"
                     onClick={() => handleViewButtonClick(rowId)}
                   >
                     View
                   </button>
                   <button
                     type="button"
-                    className="btn btn-success mx-2"
+                    className="btn btn-success mx-1"
                     onClick={() => handleEditButtonClick(rowId)}
                   >
                     Edit
                   </button>
                   <button
                     type="button"
-                    className="btn btn-danger mx-2"
+                    className="btn btn-danger mx-1"
                     onClick={() => handleDeleteButtonClick(rowId)}
                   >
                     Delete

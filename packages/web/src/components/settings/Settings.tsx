@@ -8,6 +8,8 @@ import {
   CardBody,
   TextInput,
 } from "grommet";
+import axios from "axios";
+import { getRootUrl } from "../../helpers/helpers";
 import CustomAppBar from "../customAppBar/CustomAppBar";
 import MainContent from "../mainContent/MainContent";
 
@@ -35,9 +37,33 @@ function Settings(props: any) {
     setNewPassword(e.target.value);
   };
 
-  const handleChangePasswordClick = () => {
-    console.log(oldPassword);
-    console.log(newPassword);
+  const changePasswordRequest = async () => {
+    const rootUrl = getRootUrl();
+    const token = localStorage.getItem("token");
+    const userId = localStorage.getItem("userId");
+
+    const bodyData = {
+      old_password: oldPassword,
+      new_password: newPassword,
+    };
+
+    const response = await axios.put(
+      `${rootUrl}/users/change-password/${userId}`,
+      bodyData,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    if (response) {
+      const responseData = response.data;
+      console.log("responseData = ", responseData);
+    }
+  };
+
+  const handleChangePasswordClick = async () => {
+    await changePasswordRequest();
   };
 
   const settingsView = () => {

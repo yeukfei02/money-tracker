@@ -4,8 +4,10 @@ import { Grommet } from "grommet";
 import MainPage from "./mainPage/MainPage";
 import Signup from "./signup/Signup";
 import Login from "./login/Login";
-import Income from "./income/Income";
+import Incomes from "./income/Incomes";
+import CreateIncome from "./income/CreateIncome";
 import Expenses from "./expenses/Expenses";
+import CreateExpense from "./expenses/CreateExpense";
 import Settings from "./settings/Settings";
 
 const theme = {
@@ -38,11 +40,17 @@ function App() {
           <Route exact path="/login">
             <Login />
           </Route>
-          <Route exact path="/income">
-            <Income />
+          <Route exact path="/incomes">
+            <Incomes />
+          </Route>
+          <Route exact path="/incomes/create-income">
+            <CreateIncome />
           </Route>
           <Route exact path="/expenses">
             <Expenses />
+          </Route>
+          <Route exact path="/expenses/create-expense">
+            <CreateExpense />
           </Route>
           <Route exact path="/settings">
             <Settings />

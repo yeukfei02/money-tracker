@@ -24,8 +24,8 @@ function MainContent(props: any) {
     history.push("/dashboard");
   };
 
-  const handleIncomeClick = () => {
-    history.push("/income");
+  const handleIncomesClick = () => {
+    history.push("/incomes");
   };
 
   const handleExpensesClick = () => {
@@ -82,10 +82,10 @@ function MainContent(props: any) {
             <Box
               direction="row"
               className="pointer"
-              onClick={() => handleIncomeClick()}
+              onClick={() => handleIncomesClick()}
             >
               <Money />
-              <Text className="mx-2">Income</Text>
+              <Text className="mx-2">Incomes</Text>
             </Box>
             <div className="my-3"></div>
 
@@ -124,11 +124,17 @@ function MainContent(props: any) {
         case "dashboard":
           pageContent = <Box flex>dashboard</Box>;
           break;
-        case "income":
-          pageContent = <Box flex>income</Box>;
+        case "incomes":
+          pageContent = <Box flex>{props.incomesView()}</Box>;
+          break;
+        case "create-income":
+          pageContent = <Box flex>{props.createIncomeView()}</Box>;
           break;
         case "expenses":
-          pageContent = <Box flex>expenses</Box>;
+          pageContent = <Box flex>{props.expensesView()}</Box>;
+          break;
+        case "create-expense":
+          pageContent = <Box flex>{props.createExpenseView()}</Box>;
           break;
         case "settings":
           pageContent = <Box flex>{props.settingsView()}</Box>;

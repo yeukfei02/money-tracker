@@ -4,7 +4,7 @@ import { useHistory } from "react-router";
 import CustomAppBar from "../customAppBar/CustomAppBar";
 import MainContent from "../mainContent/MainContent";
 
-function Expenses(props: any) {
+function Incomes(props: any) {
   const history = useHistory();
 
   const [isUserLoggedIn, setIsUserLoggedIn] = useState(false);
@@ -19,23 +19,23 @@ function Expenses(props: any) {
     setIsUserLoggedIn(isUserLoggedInBool);
   }, []);
 
-  const expensesView = () => {
-    const expensesView = (
+  const incomesView = () => {
+    const incomesView = (
       <Box>
         <div className="d-flex justify-content-end m-4">
           <Button
             primary
-            label="Create Expense"
-            onClick={() => handleCreateExpenseClick()}
+            label="Create Income"
+            onClick={() => handleCreateIncomeClick()}
           />
         </div>
       </Box>
     );
-    return expensesView;
+    return incomesView;
   };
 
-  const handleCreateExpenseClick = () => {
-    history.push("/expenses/create-expense");
+  const handleCreateIncomeClick = () => {
+    history.push("/incomes/create-income");
   };
 
   return (
@@ -43,11 +43,11 @@ function Expenses(props: any) {
       <CustomAppBar isUserLoggedIn={isUserLoggedIn} />
       <MainContent
         isUserLoggedIn={isUserLoggedIn}
-        currentPage="expenses"
-        expensesView={() => expensesView()}
+        currentPage="incomes"
+        incomesView={() => incomesView()}
       />
     </Box>
   );
 }
 
-export default Expenses;
+export default Incomes;

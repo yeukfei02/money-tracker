@@ -3,6 +3,7 @@ import { Box, Button } from "grommet";
 import { useHistory } from "react-router";
 import CustomAppBar from "../customAppBar/CustomAppBar";
 import MainContent from "../mainContent/MainContent";
+import ExpensesTable from "./ExpensesTable";
 
 function Expenses(props: any) {
   const history = useHistory();
@@ -29,6 +30,7 @@ function Expenses(props: any) {
             onClick={() => handleCreateExpenseClick()}
           />
         </div>
+        <ExpensesTable />
       </Box>
     );
     return expensesView;

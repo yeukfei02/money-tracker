@@ -7,6 +7,7 @@ export default class ExpensesController {
       name: schema.string({ trim: true }),
       description: schema.string({ trim: true }),
       type: schema.string({ trim: true }),
+      currency: schema.string({ trim: true }),
       amount: schema.number(),
       user_id: schema.number(),
     });
@@ -17,6 +18,7 @@ export default class ExpensesController {
       const name = body.name;
       const description = body.description;
       const type = body.type;
+      const currency = body.currency;
       const amount = body.amount;
       const user_id = body.user_id;
 
@@ -24,6 +26,7 @@ export default class ExpensesController {
       expense.name = name;
       expense.description = description;
       expense.type = type;
+      expense.currency = currency;
       expense.amount = amount;
       expense.user_id = user_id;
       await expense.save();
@@ -51,6 +54,7 @@ export default class ExpensesController {
           name: item.name,
           description: item.description,
           type: item.type,
+          currency: item.currency,
           amount: item.amount,
           created_at: item.created_at,
           updated_at: item.updated_at,
@@ -86,7 +90,7 @@ export default class ExpensesController {
         expenseObj.name = expense.name;
         expenseObj.description = expense.description;
         expenseObj.type = expense.type;
-        expenseObj.amount = expense.amount;
+        expenseObj.currency = expense.currency;
         expenseObj.created_at = expense.created_at;
         expenseObj.updated_at = expense.updated_at;
 

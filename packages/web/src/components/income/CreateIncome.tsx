@@ -79,6 +79,14 @@ function CreateIncome(props: any) {
   const createIncomeView = () => {
     const createIncomeView = (
       <div>
+        <div className="m-5">
+          <Button
+            secondary
+            label="Back"
+            onClick={() => handleBackButtonClick()}
+          />
+        </div>
+
         <Card className="m-5 p-3" background="light-1">
           <CardHeader pad="medium">
             <Heading level={2}>Create income</Heading>
@@ -241,6 +249,10 @@ function CreateIncome(props: any) {
 
   const handleCreateIncomeClick = async () => {
     await createIncomeRequest();
+  };
+
+  const handleBackButtonClick = () => {
+    history.push("/incomes");
   };
 
   return (

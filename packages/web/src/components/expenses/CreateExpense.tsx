@@ -79,6 +79,14 @@ function CreateExpense(props: any) {
   const createExpenseView = () => {
     const createExpenseView = (
       <div>
+        <div className="m-5">
+          <Button
+            secondary
+            label="Back"
+            onClick={() => handleBackButtonClick()}
+          />
+        </div>
+
         <Card className="m-5 p-3" background="light-1">
           <CardHeader pad="medium">
             <Heading level={2}>Create expense</Heading>
@@ -247,6 +255,10 @@ function CreateExpense(props: any) {
 
   const handleCreateExpenseClick = async () => {
     await createExpenseRequest();
+  };
+
+  const handleBackButtonClick = () => {
+    history.push("/incomes");
   };
 
   return (

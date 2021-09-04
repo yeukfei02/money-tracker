@@ -13,8 +13,6 @@ function Table({ columns, data }: any) {
       useSortBy
     );
 
-  const firstPageRows = rows.slice(0, 20);
-
   // Render the UI for your table
   return (
     <div>
@@ -44,7 +42,7 @@ function Table({ columns, data }: any) {
           ))}
         </thead>
         <tbody {...getTableBodyProps()}>
-          {firstPageRows.map((row, i) => {
+          {rows.map((row, i) => {
             prepareRow(row);
             return (
               <tr {...row.getRowProps()}>

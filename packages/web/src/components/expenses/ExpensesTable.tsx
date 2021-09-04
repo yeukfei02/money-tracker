@@ -1,7 +1,9 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { Text } from "grommet";
+import { View, Edit, Trash } from "grommet-icons";
 import BTable from "react-bootstrap/Table";
 import { useTable, useSortBy, useRowSelect, usePagination } from "react-table";
+import { useHistory } from "react-router";
 import dayjs from "dayjs";
 import axios from "axios";
 import { getRootUrl } from "../../helpers/helpers";
@@ -24,6 +26,8 @@ const IndeterminateCheckbox = React.forwardRef(
 );
 
 function ExpensesTable(props: any) {
+  const history = useHistory();
+
   const columns = useMemo(
     () => [
       {
@@ -70,27 +74,21 @@ function ExpensesTable(props: any) {
 
               return (
                 <div className="d-flex flex-row">
-                  <button
-                    type="button"
-                    className="btn btn-primary mx-1"
+                  <View
+                    className="mx-1 pointer"
+                    color="blue"
                     onClick={() => handleViewButtonClick(rowId)}
-                  >
-                    View
-                  </button>
-                  <button
-                    type="button"
-                    className="btn btn-success mx-1"
+                  />
+                  <Edit
+                    className="mx-1 pointer"
+                    color="green"
                     onClick={() => handleEditButtonClick(rowId)}
-                  >
-                    Edit
-                  </button>
-                  <button
-                    type="button"
-                    className="btn btn-danger mx-1"
+                  />
+                  <Trash
+                    className="mx-1 pointer"
+                    color="red"
                     onClick={() => handleDeleteButtonClick(rowId)}
-                  >
-                    Delete
-                  </button>
+                  />
                 </div>
               );
             },
@@ -106,7 +104,7 @@ function ExpensesTable(props: any) {
   let [pageSize, setPageSize] = useState(10);
   const [totalPageCount, setTotalPageCount] = useState(0);
 
-  console.log("pageNumber = ", pageNumber);
+  console.log("pageNumber = ", pageNumber + 1);
   console.log("pageSize = ", pageSize);
 
   // Use the state and functions returned from useTable to build your UI
@@ -118,7 +116,6 @@ function ExpensesTable(props: any) {
     page, // Instead of using 'rows', we'll use page,
     // which has only the rows for the active page
 
-    pageOptions,
     selectedFlatRows,
     state: { selectedRowIds },
   } = useTable(
@@ -208,16 +205,45 @@ function ExpensesTable(props: any) {
     }
   };
 
-  const handleViewButtonClick = (rowId: number) => {
-    console.log(rowId);
+  const deleteRowByIdRequest = async (id: string) => {
+    try {
+      const rootUrl = getRootUrl();
+      const token = localStorage.getItem("token");
+
+      const response = await axios.delete(`${rootUrl}/expenses/${id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      if (response) {
+        const responseData = response.data;
+        console.log("responseData = ", responseData);
+
+        if (response.status === 200) {
+          await getExpensesListRequest(pageNumber, pageSize);
+        }
+      }
+    } catch (e) {
+      console.log("error = ", e);
+    }
   };
 
-  const handleEditButtonClick = (rowId: number) => {
+  const handleViewButtonClick = async (rowId: number) => {
     console.log(rowId);
+    history.push(`/expenses/details/${rowId}`);
   };
 
-  const handleDeleteButtonClick = (rowId: number) => {
+  const handleEditButtonClick = async (rowId: number) => {
     console.log(rowId);
+    history.push(`/expenses/details/${rowId}`);
+  };
+
+  const handleDeleteButtonClick = async (rowId: number) => {
+    console.log(rowId);
+    if (rowId) {
+      const rowIdStr = rowId.toString();
+      await deleteRowByIdRequest(rowIdStr);
+    }
   };
 
   return (

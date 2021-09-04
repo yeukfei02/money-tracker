@@ -111,6 +111,7 @@ export default class ExpensesController {
         expenseObj.description = expense.description;
         expenseObj.type = expense.type;
         expenseObj.currency = expense.currency;
+        expenseObj.amount = expense.amount;
         expenseObj.created_at = expense.created_at;
         expenseObj.updated_at = expense.updated_at;
 

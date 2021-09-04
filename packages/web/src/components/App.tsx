@@ -5,8 +5,10 @@ import MainPage from "./mainPage/MainPage";
 import Signup from "./signup/Signup";
 import Login from "./login/Login";
 import Incomes from "./income/Incomes";
+import IncomesDetails from "./income/IncomesDetails";
 import CreateIncome from "./income/CreateIncome";
 import Expenses from "./expenses/Expenses";
+import ExpensesDetails from "./expenses/ExpensesDetails";
 import CreateExpense from "./expenses/CreateExpense";
 import Settings from "./settings/Settings";
 
@@ -43,11 +45,17 @@ function App() {
           <Route exact path="/incomes">
             <Incomes />
           </Route>
+          <Route exact path="/incomes/details/:id">
+            <IncomesDetails />
+          </Route>
           <Route exact path="/incomes/create-income">
             <CreateIncome />
           </Route>
           <Route exact path="/expenses">
             <Expenses />
+          </Route>
+          <Route exact path="/expenses/details/:id">
+            <ExpensesDetails />
           </Route>
           <Route exact path="/expenses/create-expense">
             <CreateExpense />

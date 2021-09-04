@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Box, Heading, Menu, Button } from "grommet";
+import { Apps } from "grommet-icons";
 import { User } from "grommet-icons";
 import { useHistory } from "react-router";
 import axios from "axios";
@@ -121,7 +122,10 @@ function CustomAppBar(props: any) {
         className="pointer"
         onClick={() => handleHomeClick()}
       >
-        Money Tracker
+        <div className="d-flex flew-row align-items-center">
+          <Apps color="#bd3939" />
+          <span className="mx-2">Money Tracker</span>
+        </div>
       </Heading>
       {renderRightSideAppBar(isUserLoggedIn)}
     </AppBar>

@@ -127,11 +127,17 @@ function MainContent(props: any) {
         case "incomes":
           pageContent = <Box flex>{props.incomesView()}</Box>;
           break;
+        case "incomesDetails":
+          pageContent = <Box flex>{props.incomesDetailsView()}</Box>;
+          break;
         case "create-income":
           pageContent = <Box flex>{props.createIncomeView()}</Box>;
           break;
         case "expenses":
           pageContent = <Box flex>{props.expensesView()}</Box>;
+          break;
+        case "expensesDetails":
+          pageContent = <Box flex>{props.expensesDetailsView()}</Box>;
           break;
         case "create-expense":
           pageContent = <Box flex>{props.createExpenseView()}</Box>;

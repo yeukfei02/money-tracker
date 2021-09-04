@@ -17,6 +17,9 @@ web: <https://money-tracker-neon.vercel.app>
 
 ```zsh
 // install node dependencies
+$ yarn
+
+// install all packages dependencies
 $ yarn run install:dep
 
 // run all (api + web) in local

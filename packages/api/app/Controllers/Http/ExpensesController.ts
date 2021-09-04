@@ -1,9 +1,18 @@
 import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext';
 import Expense from 'App/Models/Expense';
-
+import { schema } from '@ioc:Adonis/Core/Validator';
 export default class ExpensesController {
   public async createExpense({ request, response }: HttpContextContract) {
-    const body = request.body();
+    const newExpenseSchema = schema.create({
+      name: schema.string({ trim: true }),
+      description: schema.string({ trim: true }),
+      type: schema.string({ trim: true }),
+      amount: schema.number(),
+      user_id: schema.number(),
+    });
+    const body = await request.validate({ schema: newExpenseSchema });
+    console.log('body = ', body);
+
     if (body) {
       const name = body.name;
       const description = body.description;

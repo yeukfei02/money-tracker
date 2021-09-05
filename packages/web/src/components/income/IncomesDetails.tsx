@@ -104,6 +104,8 @@ function IncomesDetails(props: any) {
         if (responseData) {
           setName(responseData.income.name);
           setDescription(responseData.income.description);
+          setType(responseData.income.type);
+          setCurrency(responseData.income.currency);
           setAmount(responseData.income.amount);
         }
       }

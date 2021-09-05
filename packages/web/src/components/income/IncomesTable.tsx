@@ -164,8 +164,8 @@ function IncomesTable(props: any) {
     page, // Instead of using 'rows', we'll use page,
     // which has only the rows for the active page
 
-    selectedFlatRows,
-    state: { selectedRowIds },
+    // selectedFlatRows,
+    // state: { selectedRowIds },
   } = useTable(
     {
       columns,

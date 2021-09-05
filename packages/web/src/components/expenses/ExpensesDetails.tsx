@@ -9,12 +9,14 @@ import {
   TextInput,
   Text,
   DateInput,
+  Select,
 } from "grommet";
 import { useParams, useHistory } from "react-router";
 import CustomAppBar from "../customAppBar/CustomAppBar";
 import MainContent from "../mainContent/MainContent";
 import { getRootUrl } from "../../helpers/helpers";
 import axios from "axios";
+import dayjs from "dayjs";
 
 function ExpensesDetails(props: any) {
   const history = useHistory();
@@ -22,12 +24,17 @@ function ExpensesDetails(props: any) {
   const { id }: any = useParams();
   console.log("id = ", id);
 
+  const [currenciesList, setCurrenciesList] = useState([]);
+
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [type, setType] = useState("");
+  const [otherType, setOtherType] = useState("");
   const [currency, setCurrency] = useState("");
   const [amount, setAmount] = useState(0);
   const [date, setDate] = useState("");
+
+  const [showTypeTextInput, setShowTypeTextInput] = useState(false);
 
   const [isUserLoggedIn, setIsUserLoggedIn] = useState(false);
 
@@ -39,6 +46,8 @@ function ExpensesDetails(props: any) {
     console.log("isUserLoggedInBool = ", isUserLoggedInBool);
 
     setIsUserLoggedIn(isUserLoggedInBool);
+
+    getCurrenciesRequest();
   }, []);
 
   useEffect(() => {
@@ -46,6 +55,37 @@ function ExpensesDetails(props: any) {
       getExpensesDetailsRequest(id);
     }
   }, [id]);
+
+  const getCurrenciesRequest = async () => {
+    try {
+      const rootUrl = getRootUrl();
+      const token = localStorage.getItem("token");
+
+      const response = await axios.get(`${rootUrl}/currencies`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      if (response) {
+        const responseData = response.data;
+        console.log("responseData = ", responseData);
+
+        if (responseData) {
+          const currenciesList = responseData.currencies;
+          if (currenciesList) {
+            const formattedCurrenciesList = currenciesList.map(
+              (item: any, i: number) => {
+                return item ? item.name : "";
+              }
+            );
+            setCurrenciesList(formattedCurrenciesList);
+          }
+        }
+      }
+    } catch (e) {
+      console.log("error = ", e);
+    }
+  };
 
   const getExpensesDetailsRequest = async (id: string) => {
     try {
@@ -109,22 +149,31 @@ function ExpensesDetails(props: any) {
             />
 
             <Text>Type</Text>
-            <TextInput
-              className="my-3"
-              placeholder="Type"
-              type="text"
+            <div className="my-2"></div>
+            <Select
+              options={[
+                "Clothes",
+                "Food",
+                "Rental fee",
+                "Transportation",
+                "Others",
+              ]}
               value={type}
-              onChange={(e) => handleTypeChange(e)}
+              onChange={(e) => handlerTypeSelectDropdownChange(e)}
             />
+            {renderTypeTextInput(showTypeTextInput)}
+
+            <div className="my-2"></div>
 
             <Text>Currency</Text>
-            <TextInput
-              className="my-3"
-              placeholder="Currency"
-              type="text"
+            <div className="my-2"></div>
+            <Select
+              options={currenciesList}
               value={currency}
-              onChange={(e) => handleCurrencyChange(e)}
+              onChange={(e) => handlerCurrencySelectDropdownChange(e)}
             />
+
+            <div className="my-2"></div>
 
             <Text>Amount</Text>
             <TextInput
@@ -136,6 +185,7 @@ function ExpensesDetails(props: any) {
             />
 
             <Text>Date</Text>
+            <div className="my-2"></div>
             <DateInput
               format="yyyy-mm-dd"
               value={date}
@@ -143,7 +193,7 @@ function ExpensesDetails(props: any) {
             />
 
             <Button
-              className="mt-3"
+              className="mt-4"
               secondary
               label="Update"
               onClick={() => handleUpdateClick()}
@@ -155,6 +205,24 @@ function ExpensesDetails(props: any) {
     return expensesDetailsView;
   };
 
+  const renderTypeTextInput = (showTypeTextInput: boolean) => {
+    let typeTextInput = null;
+
+    if (showTypeTextInput) {
+      typeTextInput = (
+        <TextInput
+          className="my-3"
+          placeholder="Type"
+          type="text"
+          value={otherType}
+          onChange={(e) => handleTypeChange(e)}
+        />
+      );
+    }
+
+    return typeTextInput;
+  };
+
   const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setName(e.target.value);
   };
@@ -163,11 +231,20 @@ function ExpensesDetails(props: any) {
     setDescription(e.target.value);
   };
 
-  const handleTypeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handlerTypeSelectDropdownChange = (e: any) => {
     setType(e.target.value);
+    setShowTypeTextInput(false);
+
+    if (e.target.value === "Others") {
+      setShowTypeTextInput(true);
+    }
   };
 
-  const handleCurrencyChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleTypeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setOtherType(e.target.value);
+  };
+
+  const handlerCurrencySelectDropdownChange = (e: any) => {
     setCurrency(e.target.value);
   };
 
@@ -182,8 +259,59 @@ function ExpensesDetails(props: any) {
     }
   };
 
-  const handleUpdateClick = () => {
-    console.log(123);
+  const updateExpenseRequest = async () => {
+    try {
+      const rootUrl = getRootUrl();
+      const token = localStorage.getItem("token");
+      const userId = localStorage.getItem("userId");
+
+      if (
+        name &&
+        description &&
+        (type || otherType) &&
+        amount > 0 &&
+        date &&
+        userId
+      ) {
+        const bodyData = {
+          name: name,
+          description: description,
+          type: type !== "Others" ? type : otherType,
+          currency: currency,
+          amount: amount,
+          date: date
+            ? dayjs(date[0]).format("YYYY-MM-DD HH:mm:ss")
+            : dayjs().format("YYYY-MM-DD HH:mm:ss"),
+          user_id: userId,
+        };
+
+        const response = await axios.patch(
+          `${rootUrl}/expenses/${id}`,
+          bodyData,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+        if (response) {
+          const responseData = response.data;
+          console.log("responseData = ", responseData);
+
+          if (responseData) {
+            setTimeout(() => {
+              history.push("/expenses");
+            }, 1500);
+          }
+        }
+      }
+    } catch (e) {
+      console.log("error = ", e);
+    }
+  };
+
+  const handleUpdateClick = async () => {
+    await updateExpenseRequest();
   };
 
   const handleBackButtonClick = () => {

@@ -29,6 +29,8 @@ Route.group(() => {
   Route.get('/users/:id', 'UsersController.show').middleware('authorize');
   Route.put('/users/change-password/:id', 'UsersController.changePassword').middleware('authorize');
 
+  Route.get('/dashboard', 'DashboardController.getData').middleware('authorize');
+
   Route.post('/incomes/create-income', 'IncomesController.createIncome').middleware('authorize');
   Route.get('/incomes', 'IncomesController.index').middleware('authorize');
   Route.get('/incomes/:id', 'IncomesController.show').middleware('authorize');

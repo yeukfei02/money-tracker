@@ -68,7 +68,7 @@ function Settings(props: any) {
 
   const settingsView = () => {
     const settingsView = (
-      <Box>
+      <div>
         <Card className="m-5 p-3" background="light-1">
           <CardHeader pad="medium">
             <Heading level={2}>Change password</Heading>
@@ -96,7 +96,7 @@ function Settings(props: any) {
             />
           </CardBody>
         </Card>
-      </Box>
+      </div>
     );
 
     return settingsView;

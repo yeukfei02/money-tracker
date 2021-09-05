@@ -213,4 +213,20 @@ export default class ExpensesController {
       });
     }
   }
+
+  public async deleteAll({ request, response }: HttpContextContract) {
+    const body = request.body();
+    if (body) {
+      const userId = body.userId;
+      await Expense.query().where('user_id', userId).delete();
+
+      response.status(200).json({
+        message: 'deleteAllExpenseByUserId',
+      });
+    } else {
+      response.status(400).json({
+        message: 'deleteAllExpenseByUserId error, please provide request body userId',
+      });
+    }
+  }
 }

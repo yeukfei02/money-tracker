@@ -213,4 +213,20 @@ export default class IncomesController {
       });
     }
   }
+
+  public async deleteAll({ request, response }: HttpContextContract) {
+    const body = request.body();
+    if (body) {
+      const userId = body.userId;
+      await Income.query().where('user_id', userId).delete();
+
+      response.status(200).json({
+        message: 'deleteAllIncomeByUserId',
+      });
+    } else {
+      response.status(400).json({
+        message: 'deleteAllIncomeByUserId error, please provide request body userId',
+      });
+    }
+  }
 }

@@ -13,7 +13,6 @@ export default class UsersController {
       password: schema.string({ trim: true }),
     });
     const body = await request.validate({ schema: newSignupSchema });
-    console.log('body = ', body);
 
     if (body) {
       const email = body.email;
@@ -49,7 +48,6 @@ export default class UsersController {
       password: schema.string({ trim: true }),
     });
     const body = await request.validate({ schema: newLoginSchema });
-    console.log('body = ', body);
 
     if (body) {
       const email = body.email;
@@ -158,7 +156,6 @@ export default class UsersController {
         new_password: schema.string({ trim: true }),
       });
       const body = await request.validate({ schema: newChangePasswordSchema });
-      console.log('body = ', body);
 
       if (body) {
         const idNum = parseInt(id, 10);

@@ -1,7 +1,7 @@
 import React from "react";
 import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
 import { Grommet } from "grommet";
-import MainPage from "./mainPage/MainPage";
+import Dashboard from "./dashboard/Dashboard";
 import Signup from "./signup/Signup";
 import Login from "./login/Login";
 import Incomes from "./income/Incomes";
@@ -31,10 +31,10 @@ function App() {
       <Router>
         <Switch>
           <Route exact path="/">
-            <MainPage />
+            <Dashboard />
           </Route>
           <Route exact path="/dashboard">
-            <MainPage />
+            <Dashboard />
           </Route>
           <Route exact path="/signup">
             <Signup />

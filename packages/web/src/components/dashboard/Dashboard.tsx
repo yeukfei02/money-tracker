@@ -3,7 +3,7 @@ import { Box } from "grommet";
 import CustomAppBar from "../customAppBar/CustomAppBar";
 import MainContent from "../mainContent/MainContent";
 
-function MainPage() {
+function Dashboard() {
   const [isUserLoggedIn, setIsUserLoggedIn] = useState(false);
 
   useEffect(() => {
@@ -16,12 +16,21 @@ function MainPage() {
     setIsUserLoggedIn(isUserLoggedInBool);
   }, []);
 
+  const dashboardView = () => {
+    const dashboardView = <div>dashboardView</div>;
+    return dashboardView;
+  };
+
   return (
     <Box fill>
       <CustomAppBar isUserLoggedIn={isUserLoggedIn} />
-      <MainContent isUserLoggedIn={isUserLoggedIn} />
+      <MainContent
+        isUserLoggedIn={isUserLoggedIn}
+        currentPage="dashboard"
+        dashboardView={() => dashboardView()}
+      />
     </Box>
   );
 }
 
-export default MainPage;
+export default Dashboard;

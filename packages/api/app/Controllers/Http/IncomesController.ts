@@ -2,6 +2,7 @@ import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext';
 import Income from 'App/Models/Income';
 import { schema } from '@ioc:Adonis/Core/Validator';
 import Database from '@ioc:Adonis/Lucid/Database';
+import _ from 'lodash';
 
 export default class IncomesController {
   public async createIncome({ request, response }: HttpContextContract) {
@@ -91,12 +92,15 @@ export default class IncomesController {
       }
     }
 
+    const orderByIncomesList = !_.isEmpty(formattedIncomesList)
+      ? _.orderBy(formattedIncomesList, ['id'], ['asc'])
+      : [];
     const allCount = (await Income.query().where('user_id', userId)).length;
 
     response.status(200).json({
       message: 'getIncomes',
-      incomes: formattedIncomesList,
-      count: formattedIncomesList.length,
+      incomes: orderByIncomesList,
+      count: orderByIncomesList.length,
       allCount: allCount,
     });
   }
@@ -139,6 +143,52 @@ export default class IncomesController {
     }
   }
 
+  public async update({ request, params, response }: HttpContextContract) {
+    const newIncomeSchema = schema.create({
+      name: schema.string({ trim: true }),
+      description: schema.string({ trim: true }),
+      type: schema.string({ trim: true }),
+      currency: schema.string({ trim: true }),
+      amount: schema.number(),
+      date: schema.date({ format: 'yyyy-MM-dd HH:mm:ss' }),
+      user_id: schema.number(),
+    });
+    const body = await request.validate({ schema: newIncomeSchema });
+    console.log('body = ', body);
+
+    if (body) {
+      const name = body.name;
+      const description = body.description;
+      const type = body.type;
+      const currency = body.currency;
+      const amount = body.amount;
+      const date = body.date;
+      const user_id = body.user_id;
+
+      const id = params.id;
+      if (id) {
+        const idNum = parseInt(id, 10);
+        const income = await Income.findOrFail(idNum);
+        income.name = name;
+        income.description = description;
+        income.type = type;
+        income.currency = currency;
+        income.amount = amount;
+        income.date = date;
+        income.user_id = user_id;
+        await income.save();
+      }
+
+      response.status(200).json({
+        message: 'updateIncome',
+      });
+    } else {
+      response.status(400).json({
+        message: 'updateIncome error, no request body',
+      });
+    }
+  }
+
   public async delete({ response, params }: HttpContextContract) {
     const id = params.id;
 
@@ -160,6 +210,22 @@ export default class IncomesController {
     } else {
       response.status(400).json({
         message: 'deleteIncomeById error, please provide id',
+      });
+    }
+  }
+
+  public async deleteAll({ request, response }: HttpContextContract) {
+    const body = request.body();
+    if (body) {
+      const userId = body.userId;
+      await Income.query().where('user_id', userId).delete();
+
+      response.status(200).json({
+        message: 'deleteAllIncomeByUserId',
+      });
+    } else {
+      response.status(400).json({
+        message: 'deleteAllIncomeByUserId error, please provide request body userId',
       });
     }
   }

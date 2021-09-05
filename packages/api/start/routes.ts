@@ -32,14 +32,18 @@ Route.group(() => {
   Route.post('/incomes/create-income', 'IncomesController.createIncome').middleware('authorize');
   Route.get('/incomes', 'IncomesController.index').middleware('authorize');
   Route.get('/incomes/:id', 'IncomesController.show').middleware('authorize');
+  Route.patch('/incomes/:id', 'IncomesController.update').middleware('authorize');
   Route.delete('/incomes/:id', 'IncomesController.delete').middleware('authorize');
+  Route.post('/incomes/delete-all', 'IncomesController.deleteAll').middleware('authorize');
 
   Route.post('/expenses/create-expense', 'ExpensesController.createExpense').middleware(
     'authorize'
   );
   Route.get('/expenses', 'ExpensesController.index').middleware('authorize');
   Route.get('/expenses/:id', 'ExpensesController.show').middleware('authorize');
+  Route.patch('/expenses/:id', 'ExpensesController.update').middleware('authorize');
   Route.delete('/expenses/:id', 'ExpensesController.delete').middleware('authorize');
+  Route.post('/expenses/delete-all', 'ExpensesController.deleteAll').middleware('authorize');
 
   Route.get('/currencies', 'CurrenciesController.index').middleware('authorize');
 }).prefix('/api');

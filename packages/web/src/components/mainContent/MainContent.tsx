@@ -122,7 +122,7 @@ function MainContent(props: any) {
     if (currentPage) {
       switch (currentPage) {
         case "dashboard":
-          pageContent = <Box flex>dashboard</Box>;
+          pageContent = <Box flex>{props.dashboardView()}</Box>;
           break;
         case "incomes":
           pageContent = <Box flex>{props.incomesView()}</Box>;

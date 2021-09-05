@@ -2,6 +2,8 @@ import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext';
 import Expense from 'App/Models/Expense';
 import { schema } from '@ioc:Adonis/Core/Validator';
 import Database from '@ioc:Adonis/Lucid/Database';
+import _ from 'lodash';
+
 export default class ExpensesController {
   public async createExpense({ request, response }: HttpContextContract) {
     const newExpenseSchema = schema.create({
@@ -90,12 +92,15 @@ export default class ExpensesController {
       }
     }
 
+    const orderByExpensesList = !_.isEmpty(formattedExpensesList)
+      ? _.orderBy(formattedExpensesList, ['id'], ['asc'])
+      : [];
     const allCount = (await Expense.query().where('user_id', userId)).length;
 
     response.status(200).json({
       message: 'getExpenses',
-      expenses: formattedExpensesList,
-      count: formattedExpensesList.length,
+      expenses: orderByExpensesList,
+      count: orderByExpensesList.length,
       allCount: allCount,
     });
   }
@@ -138,6 +143,52 @@ export default class ExpensesController {
     }
   }
 
+  public async update({ request, params, response }: HttpContextContract) {
+    const newIncomeSchema = schema.create({
+      name: schema.string({ trim: true }),
+      description: schema.string({ trim: true }),
+      type: schema.string({ trim: true }),
+      currency: schema.string({ trim: true }),
+      amount: schema.number(),
+      date: schema.date({ format: 'yyyy-MM-dd HH:mm:ss' }),
+      user_id: schema.number(),
+    });
+    const body = await request.validate({ schema: newIncomeSchema });
+    console.log('body = ', body);
+
+    if (body) {
+      const name = body.name;
+      const description = body.description;
+      const type = body.type;
+      const currency = body.currency;
+      const amount = body.amount;
+      const date = body.date;
+      const user_id = body.user_id;
+
+      const id = params.id;
+      if (id) {
+        const idNum = parseInt(id, 10);
+        const expense = await Expense.findOrFail(idNum);
+        expense.name = name;
+        expense.description = description;
+        expense.type = type;
+        expense.currency = currency;
+        expense.amount = amount;
+        expense.date = date;
+        expense.user_id = user_id;
+        await expense.save();
+      }
+
+      response.status(200).json({
+        message: 'updateExpense',
+      });
+    } else {
+      response.status(400).json({
+        message: 'updateExpense error, no request body',
+      });
+    }
+  }
+
   public async delete({ response, params }: HttpContextContract) {
     const id = params.id;
 
@@ -159,6 +210,22 @@ export default class ExpensesController {
     } else {
       response.status(400).json({
         message: 'deleteExpenseById error, please provide id',
+      });
+    }
+  }
+
+  public async deleteAll({ request, response }: HttpContextContract) {
+    const body = request.body();
+    if (body) {
+      const userId = body.userId;
+      await Expense.query().where('user_id', userId).delete();
+
+      response.status(200).json({
+        message: 'deleteAllExpenseByUserId',
+      });
+    } else {
+      response.status(400).json({
+        message: 'deleteAllExpenseByUserId error, please provide request body userId',
       });
     }
   }

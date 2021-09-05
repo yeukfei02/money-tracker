@@ -383,7 +383,7 @@ function IncomesTable(props: any) {
             ))}
           </select>
 
-          <br />
+          {/* <br />
           <br />
           <pre>
             <code>
@@ -398,7 +398,7 @@ function IncomesTable(props: any) {
                 2
               )}
             </code>
-          </pre>
+          </pre> */}
         </div>
       </div>
     </div>

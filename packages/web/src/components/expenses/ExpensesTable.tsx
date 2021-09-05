@@ -383,7 +383,7 @@ function ExpensesTable(props: any) {
             ))}
           </select>
 
-          <br />
+          {/* <br />
           <br />
           <pre>
             <code>
@@ -398,7 +398,7 @@ function ExpensesTable(props: any) {
                 2
               )}
             </code>
-          </pre>
+          </pre> */}
         </div>
       </div>
     </div>

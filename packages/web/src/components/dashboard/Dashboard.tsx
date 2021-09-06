@@ -32,9 +32,13 @@ function Dashboard() {
     console.log("isUserLoggedInBool = ", isUserLoggedInBool);
 
     setIsUserLoggedIn(isUserLoggedInBool);
-
-    getDashboardData();
   }, []);
+
+  useEffect(() => {
+    if (isUserLoggedIn) {
+      getDashboardData();
+    }
+  }, [isUserLoggedIn]);
 
   const getDashboardData = async () => {
     try {

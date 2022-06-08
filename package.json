@@ -12,7 +12,7 @@
     "dev:web": "cd ./packages/web && yarn run dev",
     "production:api": "cd ./packages/api && yarn run production",
     "production:web": "cd ./packages/web && yarn run production",
-    "install:dep": "yarn run exec && yarn run link",
+    "bootstrap": "lerna bootstrap",
     "exec": "lerna exec yarn install",
     "link": "lerna link",
     "clean": "lerna clean",

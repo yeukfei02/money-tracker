@@ -4,8 +4,6 @@ money tracker api
 
 documentation: <https://documenter.getpostman.com/view/3827865/U16ev89t>
 
-api url: <https://money-tracker-monorepo-api.herokuapp.com>
-
 ## Requirement
 
 - install yarn
